@@ -2,34 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>QikPic</title>
+  <title>QikPic - Transfer Photos Instantly</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <header>
-    <div class="logo">QikPic</div>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="logo">📸 QikPic</div>
     <nav>
+      <a href="#gallery">Live Gallery</a>
       <a href="#how">How it works</a>
       <a href="#features">Features</a>
       <a href="#contact">Contact</a>
     </nav>
   </header>
 
+  <!-- Hero -->
   <section class="hero">
     <h1>Transfer Your Photos From Phone to PC in a Snap</h1>
     <p>Scan the QR code below with your phone and get your photos instantly on your desktop.</p>
-    <button id="genQR">Generate QR</button>
-    <div id="qr"></div>
+    <div id="qrcode"></div>
+    <small>Open this page on your phone and scan the code.</small>
   </section>
 
-  <section class="gallery-section">
-    <h2>Live Gallery</h2>
-    <button id="downloadAll">Download All</button>
-    <div id="gallery" class="gallery"></div>
+  <!-- Gallery -->
+  <section id="gallery" class="gallery-section">
+    <h2>📂 Live Gallery</h2>
+    <div id="galleryGrid" class="gallery-grid"></div>
+    <button id="downloadAll" class="btn">Download All</button>
   </section>
 
-  <section id="how">
-    <h2>How It Works</h2>
+  <!-- How It Works -->
+  <section id="how" class="how-section">
+    <h2>ℹ️ How It Works</h2>
     <ol>
       <li>Open QikPic on desktop → scan QR</li>
       <li>Select photos on your phone</li>
@@ -38,22 +43,25 @@
     </ol>
   </section>
 
-  <section id="features">
-    <h2>Features</h2>
-    <ul>
-      <li>⚡ Fast & Instant</li>
-      <li>📱 No cables required</li>
-      <li>🔒 Secure & Temporary</li>
-      <li>🖼 Multiple formats supported</li>
-    </ul>
+  <!-- Features -->
+  <section id="features" class="features-section">
+    <h2>✨ Features</h2>
+    <div class="features-grid">
+      <div>⚡ Fast & Instant</div>
+      <div>📱 No cables required</div>
+      <div>🔒 Secure & Temporary</div>
+      <div>🖼 Multiple formats supported</div>
+    </div>
   </section>
 
-  <footer id="contact">
+  <!-- Footer -->
+  <footer id="contact" class="footer">
     <p>© 2025 QikPic. All rights reserved.</p>
-    <p><a href="#">Privacy Policy</a> | <a href="#">Terms</a></p>
+    <a href="#">Privacy Policy</a> · <a href="#">Terms</a> · <a href="#">Contact</a>
   </footer>
 
   <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script src="/desktop.js"></script>
 </body>
 </html>
