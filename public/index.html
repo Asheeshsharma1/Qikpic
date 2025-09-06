@@ -2,67 +2,77 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>QikPic - Transfer Photos Instantly</title>
+  <title>QikPic - Transfer Photos in a Snap</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/style.css">
+  <!-- QRCode library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
 <body>
-  <!-- Navbar -->
+  <!-- ✅ Navbar -->
   <header class="navbar">
-    <div class="logo">📸 QikPic</div>
+    <div class="logo">QikPic</div>
     <nav>
-      <a href="#gallery">Live Gallery</a>
-      <a href="#how">How it works</a>
+      <a href="#howitworks">How it works</a>
       <a href="#features">Features</a>
       <a href="#contact">Contact</a>
     </nav>
   </header>
 
-  <!-- Hero -->
+  <!-- ✅ Hero Section -->
   <section class="hero">
     <h1>Transfer Your Photos From Phone to PC in a Snap</h1>
-    <p>Click below to generate a QR code and start transferring photos instantly.</p>
+    <p>Scan the QR code below with your phone and get your photos instantly on your desktop.</p>
     <button id="generateQR" class="btn">Generate QR</button>
-    <div id="qrcode"></div>
-    <small id="qrNote"></small>
+    <div id="qrcode" class="qrcode"></div>
+    <p id="qrNote" class="note">Click "Generate QR" to start.</p>
   </section>
 
-  <!-- Gallery -->
-  <section id="gallery" class="gallery-section">
-    <h2>📂 Live Gallery</h2>
+  <!-- ✅ Live Gallery -->
+  <section class="gallery-section">
+    <div class="gallery-header">
+      <h2>📸 Live Gallery</h2>
+      <button id="downloadAll" class="btn small">Download All</button>
+    </div>
     <div id="galleryGrid" class="gallery-grid"></div>
-    <button id="downloadAll" class="btn">Download All</button>
   </section>
 
-  <!-- How It Works -->
-  <section id="how" class="how-section">
-    <h2>ℹ️ How It Works</h2>
+  <!-- ✅ How it Works -->
+  <section id="howitworks" class="info-section">
+    <h2>How It Works</h2>
     <ol>
-      <li>Click “Generate QR” on desktop</li>
-      <li>Scan the QR with your phone</li>
-      <li>Select and upload photos</li>
-      <li>Photos appear instantly on desktop</li>
+      <li>💻 Open QikPic on desktop → click "Generate QR"</li>
+      <li>📱 Scan the QR with your phone</li>
+      <li>🖼 Select photos on your phone</li>
+      <li>⚡ Photos appear on desktop instantly</li>
+      <li>⬇️ Download or use them</li>
     </ol>
   </section>
 
-  <!-- Features -->
-  <section id="features" class="features-section">
-    <h2>✨ Features</h2>
-    <div class="features-grid">
-      <div>⚡ Fast & Instant</div>
-      <div>📱 No cables required</div>
-      <div>🔒 Secure & Temporary</div>
-      <div>🖼 Multiple formats supported</div>
-    </div>
+  <!-- ✅ Features -->
+  <section id="features" class="info-section">
+    <h2>Features</h2>
+    <ul>
+      <li>⚡ Fast & Instant</li>
+      <li>📱 No cables required</li>
+      <li>🔒 Secure & Temporary</li>
+      <li>🖼 Multiple formats supported</li>
+    </ul>
   </section>
 
-  <!-- Footer -->
-  <footer id="contact" class="footer">
+  <!-- ✅ Footer -->
+  <footer id="contact">
     <p>© 2025 QikPic. All rights reserved.</p>
-    <a href="#">Privacy Policy</a> · <a href="#">Terms</a> · <a href="#">Contact</a>
+    <p>
+      <a href="#">About</a> | 
+      <a href="#">Privacy Policy</a> | 
+      <a href="#">Terms</a> | 
+      <a href="#">Contact</a>
+    </p>
   </footer>
 
+  <!-- Client JS -->
   <script src="/socket.io/socket.io.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script src="/desktop.js"></script>
 </body>
 </html>
