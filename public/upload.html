@@ -3,7 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <title>Upload Photos - QikPic</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- ✅ Mobile scaling -->
   <link rel="stylesheet" href="/style.css">
+  <style>
+    /* ✅ Centering fix */
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: #f9fafb;
+    }
+
+    .upload-container {
+      width: 90%;
+      max-width: 400px;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .upload-container h2 {
+      margin-bottom: 10px;
+    }
+
+    #fileInput {
+      margin: 15px 0;
+      padding: 10px;
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+    }
+
+    .btn {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+    }
+
+    .btn:hover {
+      background: #1e40af;
+    }
+
+    #status {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #374151;
+    }
+  </style>
 </head>
 <body>
   <div class="upload-container">
@@ -19,7 +74,7 @@
   </div>
 
   <script>
-    // Session ID from URL (/upload/:sessionId)
+    // Get sessionId from URL
     const sessionId = window.location.pathname.split("/").pop();
     const form = document.getElementById("uploadForm");
     const statusDiv = document.getElementById("status");
@@ -31,7 +86,7 @@
 
       const files = document.getElementById("fileInput").files;
       if (!files.length) {
-        statusDiv.textContent = "Please select at least one photo.";
+        statusDiv.textContent = "⚠️ Please select at least one photo.";
         return;
       }
 
