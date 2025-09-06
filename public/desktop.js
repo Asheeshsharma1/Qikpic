@@ -11,11 +11,23 @@ document.getElementById("generateQR").addEventListener("click", () => {
   // generate QR
   const qrContainer = document.getElementById("qrcode");
   qrContainer.innerHTML = "";
+
   const url = `${window.location.origin}/upload/${sessionId}`;
-  QRCode.toCanvas(url, { width: 220 }, (err, canvas) => {
-    if (err) console.error(err);
-    qrContainer.appendChild(canvas);
-  });
+  console.log("QR URL:", url); // 🔍 Debug
+
+  try {
+    QRCode.toCanvas(url, { width: 220 }, (err, canvas) => {
+      if (err) {
+        console.error("QR Generation Error:", err);
+        qrContainer.innerHTML = `<p style="color:red;">❌ QR code failed. Link: <a href="${url}">${url}</a></p>`;
+        return;
+      }
+      qrContainer.appendChild(canvas);
+    });
+  } catch (e) {
+    console.error("QRCode Error:", e);
+    qrContainer.innerHTML = `<p style="color:red;">❌ QR code library not loaded. Link: <a href="${url}">${url}</a></p>`;
+  }
 
   document.getElementById("qrNote").innerText = "📱 Scan this QR on your phone to upload photos.";
 });
