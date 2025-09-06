@@ -1,4 +1,3 @@
-/* General reset */
 body {
   margin: 0;
   font-family: "Poppins", sans-serif;
@@ -36,7 +35,7 @@ body {
   color: #2563eb;
 }
 
-/* Hero Section */
+/* Hero */
 .hero {
   text-align: center;
   padding: 60px 20px;
