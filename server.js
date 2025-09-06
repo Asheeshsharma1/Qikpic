@@ -1,77 +1,75 @@
 const express = require("express");
+const http = require("http");
+const socketIo = require("socket.io");
+const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const multer = require("multer");
-const http = require("http");
-const { Server } = require("socket.io");
 const archiver = require("archiver");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = socketIo(server);
 
-app.use(express.static(path.join(__dirname, "public")));
+const PORT = process.env.PORT || 3000;
+
+app.use(express.static("public"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-const uploadRoot = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadRoot)) fs.mkdirSync(uploadRoot);
-
-function createMulter(sessionId) {
-  const sessionDir = path.join(uploadRoot, sessionId);
-  if (!fs.existsSync(sessionDir)) fs.mkdirSync(sessionDir, { recursive: true });
-  return multer({ dest: sessionDir });
-}
-
-app.post("/upload/:sessionId", (req, res) => {
-  const sessionId = req.params.sessionId;
-  const upload = createMulter(sessionId).array("photos");
-
-  upload(req, res, (err) => {
-    if (err) return res.status(500).send("Upload error");
-
-    req.files.forEach(file => {
-      io.to(sessionId).emit("newPhoto", {
-        filename: file.filename,
-        url: `/uploads/${sessionId}/${file.filename}`
-      });
-    });
-
-    res.sendStatus(200);
-  });
-});
-
+// ✅ Serve upload page with sessionId
 app.get("/upload/:sessionId", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "upload.html"));
 });
 
-// download all as zip
+// ✅ Multer storage
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const sessionPath = path.join(__dirname, "uploads", req.params.sessionId);
+    fs.mkdirSync(sessionPath, { recursive: true });
+    cb(null, sessionPath);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+const upload = multer({ storage });
+
+// ✅ Upload handler
+app.post("/upload/:sessionId", upload.array("photos", 20), (req, res) => {
+  const sessionId = req.params.sessionId;
+  req.files.forEach((file) => {
+    io.to(sessionId).emit("newPhoto", {
+      url: `/uploads/${sessionId}/${file.filename}`,
+    });
+  });
+  res.sendStatus(200);
+});
+
+// ✅ Download all as ZIP
 app.get("/download/:sessionId", (req, res) => {
   const sessionId = req.params.sessionId;
-  const sessionDir = path.join(uploadRoot, sessionId);
+  const folderPath = path.join(__dirname, "uploads", sessionId);
 
-  if (!fs.existsSync(sessionDir)) {
-    return res.status(404).send("Session not found");
+  if (!fs.existsSync(folderPath)) {
+    return res.status(404).send("No photos found for this session.");
   }
 
-  res.attachment(`qikpic-${sessionId}.zip`);
-  const archive = archiver("zip");
+  res.setHeader("Content-Disposition", `attachment; filename=${sessionId}.zip`);
+  res.setHeader("Content-Type", "application/zip");
+
+  const archive = archiver("zip", { zlib: { level: 9 } });
   archive.pipe(res);
-  archive.directory(sessionDir, false);
+  archive.directory(folderPath, false);
   archive.finalize();
 });
 
+// ✅ WebSocket
 io.on("connection", (socket) => {
-  console.log("Client connected");
-
   socket.on("joinSession", (sessionId) => {
     socket.join(sessionId);
-    console.log(`Client joined session: ${sessionId}`);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Client disconnected");
   });
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
