@@ -2,18 +2,18 @@ const socket = io();
 let sessionId = null;
 
 document.getElementById("generateQR").addEventListener("click", () => {
-  // unique session id
+  // ✅ unique session id generate
   sessionId = Math.random().toString(36).substr(2, 9);
 
-  // join socket room
+  // ✅ join socket room
   socket.emit("joinSession", sessionId);
 
-  // generate QR
+  // ✅ generate QR
   const qrContainer = document.getElementById("qrcode");
   qrContainer.innerHTML = "";
 
   const url = `${window.location.origin}/upload/${sessionId}`;
-  console.log("QR URL:", url); // 🔍 Debug
+  console.log("QR URL:", url); // debug
 
   try {
     QRCode.toCanvas(url, { width: 220 }, (err, canvas) => {
@@ -29,19 +29,20 @@ document.getElementById("generateQR").addEventListener("click", () => {
     qrContainer.innerHTML = `<p style="color:red;">❌ QR code library not loaded. Link: <a href="${url}">${url}</a></p>`;
   }
 
-  document.getElementById("qrNote").innerText = "📱 Scan this QR on your phone to upload photos.";
+  document.getElementById("qrNote").innerText =
+    "📱 Scan this QR on your phone to upload photos.";
 });
 
-// receive new photos
+// ✅ receive new photos
 socket.on("newPhoto", (data) => {
   const gallery = document.getElementById("galleryGrid");
   const img = document.createElement("img");
-  img.src = data.url;
+  img.src = data.url + "?t=" + Date.now(); // cache bust
   img.classList.add("gallery-img");
   gallery.appendChild(img);
 });
 
-// download all photos as ZIP
+// ✅ download all photos as ZIP
 document.getElementById("downloadAll").addEventListener("click", () => {
   if (!sessionId) {
     alert("Generate a QR and upload photos first!");
