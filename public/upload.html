@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- ✅ Mobile scaling -->
   <link rel="stylesheet" href="/style.css">
   <style>
-    /* ✅ Centering fix */
+    /* ✅ Centering & mobile responsive */
     body {
       display: flex;
       justify-content: center;
@@ -14,6 +14,7 @@
       height: 100vh;
       margin: 0;
       background: #f9fafb;
+      font-family: "Poppins", sans-serif;
     }
 
     .upload-container {
@@ -21,21 +22,30 @@
       max-width: 400px;
       background: #fff;
       padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-radius: 16px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
       text-align: center;
     }
 
     .upload-container h2 {
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+      font-size: 22px;
+      color: #111827;
+    }
+
+    .upload-container p {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 20px;
     }
 
     #fileInput {
       margin: 15px 0;
-      padding: 10px;
+      padding: 12px;
       width: 100%;
       border: 1px solid #d1d5db;
-      border-radius: 8px;
+      border-radius: 10px;
+      font-size: 14px;
     }
 
     .btn {
@@ -43,10 +53,11 @@
       color: white;
       border: none;
       padding: 12px 20px;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       font-size: 16px;
       width: 100%;
+      transition: background 0.2s ease-in-out;
     }
 
     .btn:hover {
@@ -74,11 +85,12 @@
   </div>
 
   <script>
-    // Get sessionId from URL
+    // ✅ Get sessionId from URL
     const sessionId = window.location.pathname.split("/").pop();
     const form = document.getElementById("uploadForm");
     const statusDiv = document.getElementById("status");
 
+    // ✅ Set correct action
     form.action = `/upload/${sessionId}`;
 
     form.addEventListener("submit", async (e) => {
@@ -105,6 +117,7 @@
 
         if (res.ok) {
           statusDiv.textContent = "✅ Uploaded successfully!";
+          document.getElementById("fileInput").value = ""; // clear after upload
         } else {
           statusDiv.textContent = "❌ Upload failed!";
         }
