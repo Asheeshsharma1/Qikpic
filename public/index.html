@@ -1,42 +1,59 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>QikPic — Desktop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="style.css" />
-  <!-- QR generator lib -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <meta charset="UTF-8">
+  <title>QikPic</title>
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <header class="topbar">
+  <header>
     <div class="logo">QikPic</div>
-    <nav><a href="#">How it works</a> <a href="#">Features</a> <a href="#">Contact</a></nav>
+    <nav>
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#contact">Contact</a>
+    </nav>
   </header>
 
-  <main class="container">
-    <section class="hero">
-      <h1>Transfer Your Photos From Phone to PC in a Snap</h1>
-      <p>Scan the QR code below with your phone and get your photos instantly on your desktop.</p>
+  <section class="hero">
+    <h1>Transfer Your Photos From Phone to PC in a Snap</h1>
+    <p>Scan the QR code below with your phone and get your photos instantly on your desktop.</p>
+    <button id="genQR">Generate QR</button>
+    <div id="qr"></div>
+  </section>
 
-      <div class="qr-area">
-        <button id="generateBtn" class="btn">Generate QR</button>
-        <div id="qrWrap" class="qrWrap"></div>
-        <p class="muted">Open this page on your phone and scan the code.</p>
-      </div>
-    </section>
+  <section class="gallery-section">
+    <h2>Live Gallery</h2>
+    <button id="downloadAll">Download All</button>
+    <div id="gallery" class="gallery"></div>
+  </section>
 
-    <section class="gallery-card">
-      <div class="gallery-header">
-        <h2>Live Gallery</h2>
-        <div>
-          <button id="downloadAll" class="btn secondary">Download All</button>
-        </div>
-      </div>
-      <div id="gallery" class="gallery"></div>
-    </section>
-  </main>
+  <section id="how">
+    <h2>How It Works</h2>
+    <ol>
+      <li>Open QikPic on desktop → scan QR</li>
+      <li>Select photos on your phone</li>
+      <li>Photos appear on desktop instantly</li>
+      <li>Download or use them</li>
+    </ol>
+  </section>
 
+  <section id="features">
+    <h2>Features</h2>
+    <ul>
+      <li>⚡ Fast & Instant</li>
+      <li>📱 No cables required</li>
+      <li>🔒 Secure & Temporary</li>
+      <li>🖼 Multiple formats supported</li>
+    </ul>
+  </section>
+
+  <footer id="contact">
+    <p>© 2025 QikPic. All rights reserved.</p>
+    <p><a href="#">Privacy Policy</a> | <a href="#">Terms</a></p>
+  </footer>
+
+  <script src="/socket.io/socket.io.js"></script>
   <script src="/desktop.js"></script>
 </body>
 </html>
