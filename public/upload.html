@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>QikPic — Upload</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="phone-container">
+    <h2>Upload to QikPic</h2>
+    <p id="sessionInfo">Preparing...</p>
+
+    <form id="uploadForm">
+      <input type="file" id="fileInput" name="photos" accept="image/*" multiple />
+      <div style="height:10px"></div>
+      <button class="btn" type="submit">Upload</button>
+    </form>
+
+    <div id="status" class="muted"></div>
+  </main>
+
+  <script src="/phone.js"></script>
+</body>
+</html>
