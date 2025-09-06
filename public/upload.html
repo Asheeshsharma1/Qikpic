@@ -2,19 +2,62 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Upload - QikPic</title>
+  <title>Upload Photos - QikPic</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <div class="upload-container">
     <h2>📤 Upload Photos</h2>
     <p>Select photos to instantly send them to your desktop.</p>
-    <form id="uploadForm" enctype="multipart/form-data">
+
+    <form id="uploadForm" enctype="multipart/form-data" method="post">
       <input type="file" name="photos" id="fileInput" multiple accept="image/*">
       <button type="submit" class="btn">Upload</button>
     </form>
+
     <div id="status"></div>
   </div>
-  <script src="/phone.js"></script>
+
+  <script>
+    // Session ID from URL (/upload/:sessionId)
+    const sessionId = window.location.pathname.split("/").pop();
+    const form = document.getElementById("uploadForm");
+    const statusDiv = document.getElementById("status");
+
+    form.action = `/upload/${sessionId}`;
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const files = document.getElementById("fileInput").files;
+      if (!files.length) {
+        statusDiv.textContent = "Please select at least one photo.";
+        return;
+      }
+
+      const formData = new FormData();
+      for (let file of files) {
+        formData.append("photos", file);
+      }
+
+      statusDiv.textContent = "⏳ Uploading...";
+
+      try {
+        const res = await fetch(`/upload/${sessionId}`, {
+          method: "POST",
+          body: formData
+        });
+
+        if (res.ok) {
+          statusDiv.textContent = "✅ Uploaded successfully!";
+        } else {
+          statusDiv.textContent = "❌ Upload failed!";
+        }
+      } catch (err) {
+        console.error(err);
+        statusDiv.textContent = "⚠️ Error while uploading!";
+      }
+    });
+  </script>
 </body>
 </html>
