@@ -5,11 +5,10 @@
   <title>QikPic - Transfer Photos in a Snap</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/style.css">
-  <!-- QRCode library -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
 <body>
-  <!-- ✅ Navbar -->
+  <!-- Navbar -->
   <header class="navbar">
     <div class="logo">QikPic</div>
     <nav>
@@ -19,7 +18,7 @@
     </nav>
   </header>
 
-  <!-- ✅ Hero Section -->
+  <!-- Hero -->
   <section class="hero">
     <h1>Transfer Your Photos From Phone to PC in a Snap</h1>
     <p>Scan the QR code below with your phone and get your photos instantly on your desktop.</p>
@@ -28,16 +27,16 @@
     <p id="qrNote" class="note">Click "Generate QR" to start.</p>
   </section>
 
-  <!-- ✅ Live Gallery -->
+  <!-- Live Gallery -->
   <section class="gallery-section">
     <div class="gallery-header">
       <h2>📸 Live Gallery</h2>
-      <button id="downloadAll" class="btn small">Download All</button>
+      <button id="downloadAll" class="btn small">Download All (ZIP)</button>
     </div>
     <div id="galleryGrid" class="gallery-grid"></div>
   </section>
 
-  <!-- ✅ How it Works -->
+  <!-- How it works -->
   <section id="howitworks" class="info-section">
     <h2>How It Works</h2>
     <ol>
@@ -49,7 +48,7 @@
     </ol>
   </section>
 
-  <!-- ✅ Features -->
+  <!-- Features -->
   <section id="features" class="info-section">
     <h2>Features</h2>
     <ul>
@@ -60,7 +59,7 @@
     </ul>
   </section>
 
-  <!-- ✅ Footer -->
+  <!-- Footer -->
   <footer id="contact">
     <p>© 2025 QikPic. All rights reserved.</p>
     <p>
@@ -71,7 +70,7 @@
     </p>
   </footer>
 
-  <!-- Client JS -->
+  <!-- Scripts -->
   <script src="/socket.io/socket.io.js"></script>
   <script src="/desktop.js"></script>
 </body>
