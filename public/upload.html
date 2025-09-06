@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>Upload Photos - QikPic</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- ✅ Mobile scaling -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/style.css">
   <style>
-    /* ✅ Centering & mobile responsive */
     body {
       display: flex;
       justify-content: center;
@@ -85,17 +84,13 @@
   </div>
 
   <script>
-    // ✅ Get sessionId from URL
     const sessionId = window.location.pathname.split("/").pop();
     const form = document.getElementById("uploadForm");
     const statusDiv = document.getElementById("status");
-
-    // ✅ Set correct action
     form.action = `/upload/${sessionId}`;
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-
       const files = document.getElementById("fileInput").files;
       if (!files.length) {
         statusDiv.textContent = "⚠️ Please select at least one photo.";
@@ -117,7 +112,7 @@
 
         if (res.ok) {
           statusDiv.textContent = "✅ Uploaded successfully!";
-          document.getElementById("fileInput").value = ""; // clear after upload
+          document.getElementById("fileInput").value = "";
         } else {
           statusDiv.textContent = "❌ Upload failed!";
         }
