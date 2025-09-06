@@ -4,42 +4,31 @@ const fs = require("fs");
 const multer = require("multer");
 const http = require("http");
 const { Server } = require("socket.io");
+const archiver = require("archiver");
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// Static files
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Create uploads folder if not exists
 const uploadRoot = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadRoot)) {
-  fs.mkdirSync(uploadRoot);
-}
+if (!fs.existsSync(uploadRoot)) fs.mkdirSync(uploadRoot);
 
-// Multer storage setup
 function createMulter(sessionId) {
   const sessionDir = path.join(uploadRoot, sessionId);
-  if (!fs.existsSync(sessionDir)) {
-    fs.mkdirSync(sessionDir, { recursive: true });
-  }
+  if (!fs.existsSync(sessionDir)) fs.mkdirSync(sessionDir, { recursive: true });
   return multer({ dest: sessionDir });
 }
 
-// Upload route
 app.post("/upload/:sessionId", (req, res) => {
   const sessionId = req.params.sessionId;
   const upload = createMulter(sessionId).array("photos");
 
   upload(req, res, (err) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send("Upload error");
-    }
+    if (err) return res.status(500).send("Upload error");
 
-    // Notify all desktop clients in this session
     req.files.forEach(file => {
       io.to(sessionId).emit("newPhoto", {
         filename: file.filename,
@@ -51,12 +40,26 @@ app.post("/upload/:sessionId", (req, res) => {
   });
 });
 
-// Upload page route
 app.get("/upload/:sessionId", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "upload.html"));
 });
 
-// Socket.IO connections
+// download all as zip
+app.get("/download/:sessionId", (req, res) => {
+  const sessionId = req.params.sessionId;
+  const sessionDir = path.join(uploadRoot, sessionId);
+
+  if (!fs.existsSync(sessionDir)) {
+    return res.status(404).send("Session not found");
+  }
+
+  res.attachment(`qikpic-${sessionId}.zip`);
+  const archive = archiver("zip");
+  archive.pipe(res);
+  archive.directory(sessionDir, false);
+  archive.finalize();
+});
+
 io.on("connection", (socket) => {
   console.log("Client connected");
 
@@ -70,8 +73,5 @@ io.on("connection", (socket) => {
   });
 });
 
-// Start server
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
