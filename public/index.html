@@ -1,81 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QikPic - Transfer Photos & Files</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Files - QikPic</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <!-- Header -->
-  <header>
-    <div class="logo">QikPic</div>
-    <nav>
-      <a href="#how">How it works</a>
-      <a href="#features">Features</a>
-      <a href="#contact">Contact</a>
-    </nav>
-  </header>
+<body class="upload-page">
+  <div class="upload-container">
+    <h1>📤 Upload Files to QikPic</h1>
+    <p>Select one or more files below and send them instantly.</p>
 
-  <!-- Main container -->
-  <div class="main-container">
-    <!-- Left: Hero + QR -->
-    <div class="hero">
-      <h1>Transfer Photos & Files <br> From Phone to PC in a Snap</h1>
-      <p>Scan the QR code below with your phone and get your files instantly.</p>
+    <form id="uploadForm">
+      <input type="file" id="fileInput" name="files" multiple required />
+      <button type="submit">Upload</button>
+    </form>
 
-      <div class="qr-container">
-        <button id="generateQr">Generate QR</button>
-        <div id="qrCode" class="qr-box"></div>
-        <small>Open this page on your phone and scan the code.</small>
-      </div>
+    <div id="progressBox" class="progress-box">
+      <div id="progressBar" class="progress-bar"></div>
     </div>
 
-    <!-- Right: Gallery + Info -->
-    <div class="sidebar">
-      <div class="gallery-box">
-        <h2>Live Gallery</h2>
-        <button id="downloadAll">⬇ Download All</button>
-        <div id="galleryGrid" class="gallery-grid"></div>
-      </div>
-
-      <div class="info-box" id="how">
-        <h2>How It Works</h2>
-        <p>1️⃣ Open QikPic on desktop → scan QR</p>
-        <p>2️⃣ Select photos/files on your phone</p>
-        <p>3️⃣ Files appear instantly</p>
-        <p>4️⃣ Download or use them</p>
-      </div>
-
-      <div class="info-box" id="features">
-        <h2>Features</h2>
-        <p>⚡ Fast & Instant</p>
-        <p>📱 No cables required</p>
-        <p>🔒 Secure & Temporary</p>
-        <p>🖼 Multiple formats supported</p>
-      </div>
-    </div>
+    <p id="statusText"></p>
   </div>
 
-  <!-- Footer -->
-  <footer id="contact">
-    <p>© 2025 QikPic. All rights reserved.</p>
-  </footer>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const session = urlParams.get("session");
 
-  <!-- Modal -->
-  <div id="galleryModal" class="modal">
-    <span id="closeModal" class="close-btn">×</span>
-    <div class="modal-content">
-      <button id="prevBtn" class="nav-btn">⬅ Prev</button>
-      <img id="modalImage" src="" alt="Preview" />
-      <div id="modalFile"></div>
-      <button id="nextBtn" class="nav-btn">Next ➡</button>
-    </div>
-    <button id="deleteBtn" class="delete-btn">🗑 Delete</button>
-  </div>
+    const form = document.getElementById("uploadForm");
+    const fileInput = document.getElementById("fileInput");
+    const progressBox = document.getElementById("progressBox");
+    const progressBar = document.getElementById("progressBar");
+    const statusText = document.getElementById("statusText");
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="desktop.js"></script>
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      if (!session) {
+        alert("Session ID missing. Please scan QR again.");
+        return;
+      }
+
+      const files = fileInput.files;
+      if (!files.length) {
+        alert("Please select files first!");
+        return;
+      }
+
+      const formData = new FormData();
+      for (let f of files) formData.append("files", f);
+      formData.append("session", session);
+
+      progressBox.style.display = "block";
+
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/upload", true);
+
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            progressBar.style.width = percent + "%";
+            statusText.textContent = `Uploading... ${percent}%`;
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            statusText.textContent = "✅ Upload complete!";
+            progressBar.style.width = "100%";
+          } else {
+            statusText.textContent = "❌ Upload failed!";
+          }
+        };
+
+        xhr.send(formData);
+      } catch (err) {
+        console.error(err);
+        statusText.textContent = "⚠ Error uploading.";
+      }
+    });
+  </script>
 </body>
 </html>
