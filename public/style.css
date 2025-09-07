@@ -1,153 +1,64 @@
-/* Reset */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  font-family: 'Poppins', sans-serif;
-  background: #f5f7fa;
-  color: #333;
-  height: 100vh;
+/* Upload page */
+.upload-page {
   display: flex;
-  flex-direction: column;
-}
-
-/* Header */
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 40px;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  flex-shrink: 0;
-}
-
-header .logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #007bff;
-}
-
-header nav a {
-  margin-left: 20px;
-  text-decoration: none;
-  color: #333;
-  font-weight: 500;
-}
-header nav a:hover { color: #007bff; }
-
-/* Main split */
-.main-container {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-}
-
-/* Left Hero */
-.hero {
-  flex: 1;
-  background: #fff;
-  padding: 40px;
-  display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
+  height: 100vh;
+  background: #f5f7fa;
 }
 
-.hero h1 { font-size: 2rem; margin-bottom: 20px; text-align: center; }
-.hero p { margin-bottom: 20px; font-size: 1.1rem; text-align: center; }
-
-.qr-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-#qrCode canvas { margin-top: 15px; }
-
-/* Right Sidebar */
-.sidebar {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background: #f9fafc;
-  border-left: 1px solid #ddd;
-  padding: 20px;
-  overflow-y: auto;
-}
-
-.gallery-box, .info-box {
+.upload-container {
   background: #fff;
-  padding: 20px;
+  padding: 30px;
   border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
 }
 
-.gallery-box h2, .info-box h2 {
+.upload-container h1 {
+  margin-bottom: 10px;
+}
+
+.upload-container p {
   margin-bottom: 15px;
-  font-size: 1.4rem;
+  color: #555;
 }
 
-/* Gallery Grid */
-.gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 10px;
+.upload-container input[type="file"] {
+  display: block;
+  margin: 15px auto;
 }
 
-.gallery-grid img {
-  width: 100%;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-/* Buttons */
-button {
+.upload-container button {
   background: #007bff;
   color: #fff;
   border: none;
-  padding: 8px 16px;
+  padding: 10px 18px;
   border-radius: 6px;
   cursor: pointer;
 }
-button:hover { background: #0056b3; }
-
-/* Footer */
-footer {
-  background: #222;
-  color: #fff;
-  text-align: center;
-  padding: 10px;
-  flex-shrink: 0;
+.upload-container button:hover {
+  background: #0056b3;
 }
 
-/* Modal (same as before) */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0; top: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.85);
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-}
-.modal-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-}
-.modal-content img {
-  max-width: 70vw;
-  max-height: 70vh;
+/* Progress bar */
+.progress-box {
+  width: 100%;
+  background: #eee;
   border-radius: 8px;
+  overflow: hidden;
+  margin-top: 15px;
+  display: none;
 }
-.close-btn {
-  position: absolute; top: 20px; right: 30px;
-  font-size: 2rem; color: white; cursor: pointer;
+.progress-bar {
+  height: 12px;
+  width: 0%;
+  background: #28a745;
+  transition: width 0.3s;
 }
-.nav-btn { background: #444; color: white; border: none; padding: 8px 16px; border-radius: 6px; }
-.delete-btn { background: red; color: white; padding: 10px 20px; margin-top: 10px; border-radius: 6px; cursor: pointer; }
+#statusText {
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
