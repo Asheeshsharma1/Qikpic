@@ -2,17 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QikPic</title>
-  <link rel="stylesheet" href="style.css"/>
-  <!-- Socket.io -->
-  <script src="/socket.io/socket.io.js"></script>
-  <!-- QRCode Library -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QikPic - Transfer Photos & Files</title>
+  <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
 <body>
-  <!-- Navbar -->
-  <header class="navbar">
+  <!-- Header -->
+  <header>
     <div class="logo">QikPic</div>
     <nav>
       <a href="#how">How it works</a>
@@ -21,59 +18,49 @@
     </nav>
   </header>
 
-  <!-- Hero -->
+  <!-- Hero Section -->
   <section class="hero">
     <h1>Transfer Your Photos & Files From Phone to PC in a Snap</h1>
     <p>Scan the QR code below with your phone and get your files instantly on your desktop.</p>
-    <button id="generateQR">Generate QR</button>
-    <div id="qr"><img id="qrImg" style="margin-top:20px; max-width:200px;"></div>
-    <small>Open this page on your phone and scan the code.</small>
+
+    <div class="qr-container">
+      <button id="generateQr">Generate QR</button>
+      <div id="qrCode"></div>
+      <small>Open this page on your phone and scan the code.</small>
+    </div>
   </section>
 
-  <!-- Gallery -->
-  <section id="gallery" class="gallery-section">
+  <!-- Live Gallery -->
+  <section id="gallery" class="section">
     <h2>Live Gallery</h2>
     <button id="downloadAll">⬇ Download All</button>
     <div id="galleryGrid" class="gallery-grid"></div>
   </section>
 
-  <!-- How it works -->
-  <section id="how" class="info-section">
+  <!-- How It Works -->
+  <section id="how" class="section">
     <h2>How It Works</h2>
-    <div class="info-steps">
-      <p>1️⃣ Open QikPic on desktop → scan QR</p>
-      <p>2️⃣ Select photos or files on your phone</p>
-      <p>3️⃣ Files appear on desktop instantly</p>
-      <p>4️⃣ Download or use them</p>
-    </div>
+    <p>1️⃣ Open QikPic on desktop → scan QR</p>
+    <p>2️⃣ Select photos or files on your phone</p>
+    <p>3️⃣ Files appear on desktop instantly</p>
+    <p>4️⃣ Download or use them</p>
   </section>
 
   <!-- Features -->
-  <section id="features" class="info-section">
+  <section id="features" class="section">
     <h2>Features</h2>
-    <div class="info-steps">
-      <p>⚡ Fast & Instant</p>
-      <p>📱 No cables required</p>
-      <p>🔒 Secure & Temporary Storage</p>
-      <p>🖼 Multiple formats supported</p>
-    </div>
+    <p>⚡ Fast & Instant</p>
+    <p>📱 No cables required</p>
+    <p>🔒 Secure & Temporary Storage</p>
+    <p>🖼 Multiple formats supported</p>
   </section>
 
   <!-- Footer -->
-  <footer class="footer" id="contact">
+  <footer id="contact">
     <p>© 2025 QikPic. All rights reserved.</p>
   </footer>
 
-  <!-- Modal -->
-  <div id="modal" class="modal">
-    <span id="closeModal">&times;</span>
-    <img id="modalImg"/>
-    <button id="deleteBtn">🗑 Delete</button>
-    <button id="prevBtn">⬅ Prev</button>
-    <button id="nextBtn">Next ➡</button>
-  </div>
-
-  <!-- Desktop logic -->
+  <script src="/socket.io/socket.io.js"></script>
   <script src="desktop.js"></script>
 </body>
 </html>
