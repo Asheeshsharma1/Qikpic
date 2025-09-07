@@ -3,20 +3,20 @@ let sessionId = null;
 let files = [];
 let currentIndex = 0;
 
-// ✅ Generate QR
 document.getElementById("generateQR").addEventListener("click", () => {
   sessionId = Math.random().toString(36).substring(2, 8);
   const url = `${window.location.origin}/upload.html?session=${sessionId}`;
-  
-  // Generate QR
-  QRCode.toCanvas(document.getElementById("qr"), url, { width: 200 }, (err) => {
-    if (err) console.error(err);
+
+  // ✅ QR generate as image
+  QRCode.toDataURL(url, { width: 200 }, (err, dataUrl) => {
+    if (err) return console.error(err);
+    document.getElementById("qrImg").src = dataUrl;
   });
 
   socket.emit("joinSession", sessionId);
 });
 
-// ✅ Live updates from server
+// ✅ Live updates
 socket.on("newFile", (file) => {
   files.push(file);
   renderGallery();
@@ -27,7 +27,7 @@ socket.on("fileDeleted", (filename) => {
   renderGallery();
 });
 
-// ✅ Render Gallery
+// ✅ Render gallery
 function renderGallery() {
   const gallery = document.getElementById("galleryGrid");
   gallery.innerHTML = "";
@@ -56,7 +56,7 @@ document.getElementById("downloadAll").addEventListener("click", () => {
   window.location.href = `/download/${sessionId}`;
 });
 
-// ✅ Modal Logic
+// ✅ Modal logic
 const modal = document.getElementById("modal");
 const modalImg = document.getElementById("modalImg");
 const closeModal = document.getElementById("closeModal");
