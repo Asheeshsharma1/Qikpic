@@ -12,55 +12,55 @@
   <header>
     <div class="logo">QikPic</div>
     <nav>
-      <a href="#how">How it works</a>
-      <a href="#features">Features</a>
-      <a href="#contact">Contact</a>
+      <a href="#">How it works</a>
+      <a href="#">Features</a>
+      <a href="#">Contact</a>
     </nav>
   </header>
 
-  <!-- Hero Section -->
-  <section class="hero">
-    <h1>Transfer Your Photos & Files From Phone to PC in a Snap</h1>
-    <p>Scan the QR code below with your phone and get your files instantly on your desktop.</p>
+  <!-- Main container -->
+  <div class="main-container">
+    <!-- Left: Hero + QR -->
+    <div class="hero">
+      <h1>Transfer Photos & Files <br> From Phone to PC in a Snap</h1>
+      <p>Scan the QR code below with your phone and get your files instantly.</p>
 
-    <div class="qr-container">
-      <button id="generateQr">Generate QR</button>
-      <div id="qrCode"></div>
-      <small>Open this page on your phone and scan the code.</small>
+      <div class="qr-container">
+        <button id="generateQr">Generate QR</button>
+        <div id="qrCode"></div>
+      </div>
     </div>
-  </section>
 
-  <!-- Live Gallery -->
-  <section id="gallery" class="section">
-    <h2>Live Gallery</h2>
-    <button id="downloadAll">⬇ Download All</button>
-    <div id="galleryGrid" class="gallery-grid"></div>
-  </section>
+    <!-- Right: Gallery + Info -->
+    <div class="sidebar">
+      <div class="gallery-box">
+        <h2>Live Gallery</h2>
+        <button id="downloadAll">⬇ Download All</button>
+        <div id="galleryGrid" class="gallery-grid"></div>
+      </div>
 
-  <!-- How It Works -->
-  <section id="how" class="section">
-    <h2>How It Works</h2>
-    <p>1️⃣ Open QikPic on desktop → scan QR</p>
-    <p>2️⃣ Select photos or files on your phone</p>
-    <p>3️⃣ Files appear on desktop instantly</p>
-    <p>4️⃣ Download or use them</p>
-  </section>
+      <div class="info-box">
+        <h2>How It Works</h2>
+        <p>1️⃣ Open QikPic on desktop → scan QR</p>
+        <p>2️⃣ Select photos/files on your phone</p>
+        <p>3️⃣ Files appear instantly</p>
+        <p>4️⃣ Download or use them</p>
 
-  <!-- Features -->
-  <section id="features" class="section">
-    <h2>Features</h2>
-    <p>⚡ Fast & Instant</p>
-    <p>📱 No cables required</p>
-    <p>🔒 Secure & Temporary Storage</p>
-    <p>🖼 Multiple formats supported</p>
-  </section>
+        <h2>Features</h2>
+        <p>⚡ Fast & Instant</p>
+        <p>📱 No cables required</p>
+        <p>🔒 Secure & Temporary</p>
+        <p>🖼 Multiple formats supported</p>
+      </div>
+    </div>
+  </div>
 
   <!-- Footer -->
-  <footer id="contact">
+  <footer>
     <p>© 2025 QikPic. All rights reserved.</p>
   </footer>
 
-  <!-- Gallery Modal -->
+  <!-- Modal -->
   <div id="galleryModal" class="modal">
     <span id="closeModal" class="close-btn">×</span>
     <div class="modal-content">
