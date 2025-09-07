@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static("public"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// ✅ Serve upload page with sessionId
+// ✅ Serve upload page
 app.get("/upload/:sessionId", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "upload.html"));
 });
@@ -31,15 +31,15 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + "-" + file.originalname);
   },
 });
-
 const upload = multer({ storage });
 
-// ✅ Upload handler
+// ✅ Upload photos
 app.post("/upload/:sessionId", upload.array("photos", 20), (req, res) => {
   const sessionId = req.params.sessionId;
   req.files.forEach((file) => {
     io.to(sessionId).emit("newPhoto", {
       url: `/uploads/${sessionId}/${file.filename}`,
+      filename: file.filename,
     });
   });
   res.sendStatus(200);
@@ -61,6 +61,20 @@ app.get("/download/:sessionId", (req, res) => {
   archive.pipe(res);
   archive.directory(folderPath, false);
   archive.finalize();
+});
+
+// ✅ Delete photo
+app.delete("/delete/:sessionId/:filename", (req, res) => {
+  const { sessionId, filename } = req.params;
+  const filePath = path.join(__dirname, "uploads", sessionId, filename);
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send("File not found");
+  }
+
+  fs.unlinkSync(filePath);
+  io.to(sessionId).emit("deletePhoto", { filename });
+  res.sendStatus(200);
 });
 
 // ✅ WebSocket
