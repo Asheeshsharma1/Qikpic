@@ -1,9 +1,9 @@
 const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
-const http = require("http");
-const { Server } = require("socket.io");
 const archiver = require("archiver");
 
 const app = express();
@@ -12,61 +12,72 @@ const io = new Server(server);
 
 app.use(express.static("public"));
 
+// ✅ Storage setup
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = path.join(__dirname, "uploads", req.params.sessionId);
-    fs.mkdirSync(dir, { recursive: true });
+    const sessionId = req.params.sessionId;
+    const dir = path.join(__dirname, "uploads", sessionId);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     cb(null, dir);
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + "-" + file.originalname);
   },
 });
-
 const upload = multer({ storage });
 
-// ✅ Upload route
-app.post("/upload/:sessionId", upload.single("file"), (req, res) => {
-  const filePath = `/uploads/${req.params.sessionId}/${req.file.filename}`;
-  io.to(req.params.sessionId).emit("newFile", {
-    filename: req.file.originalname,
-    url: filePath,
-  });
+// ✅ File upload route
+app.post("/upload/:sessionId", upload.array("files"), (req, res) => {
+  const sessionId = req.params.sessionId;
+  const files = req.files.map((f) => ({
+    filename: f.filename,
+    url: `/uploads/${sessionId}/${f.filename}`,
+  }));
+
+  io.to(sessionId).emit("newFile", files[0]); // emit one by one
   res.sendStatus(200);
 });
 
 // ✅ Serve uploaded files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// ✅ Download all as ZIP
+// ✅ Download all as zip
 app.get("/download/:sessionId", (req, res) => {
-  const dir = path.join(__dirname, "uploads", req.params.sessionId);
-  if (!fs.existsSync(dir)) return res.status(404).send("No files");
+  const sessionId = req.params.sessionId;
+  const folder = path.join(__dirname, "uploads", sessionId);
 
-  res.attachment("qikpic-files.zip");
+  if (!fs.existsSync(folder)) return res.sendStatus(404);
+
+  res.attachment(`${sessionId}-files.zip`);
   const archive = archiver("zip", { zlib: { level: 9 } });
   archive.pipe(res);
-  archive.directory(dir, false);
+  archive.directory(folder, false);
   archive.finalize();
 });
 
 // ✅ Delete file
 app.delete("/delete/:sessionId/:filename", (req, res) => {
-  const filePath = path.join(__dirname, "uploads", req.params.sessionId, req.params.filename);
+  const { sessionId, filename } = req.params;
+  const filePath = path.join(__dirname, "uploads", sessionId, filename);
+
   if (fs.existsSync(filePath)) {
     fs.unlinkSync(filePath);
-    io.to(req.params.sessionId).emit("fileDeleted", req.params.filename);
-    return res.sendStatus(200);
+    io.to(sessionId).emit("fileDeleted", filename);
+    res.sendStatus(200);
+  } else {
+    res.sendStatus(404);
   }
-  res.sendStatus(404);
 });
 
-// ✅ Socket.io session join
+// ✅ WebSocket join
 io.on("connection", (socket) => {
   socket.on("joinSession", (sessionId) => {
     socket.join(sessionId);
   });
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+// ✅ Start server
+const PORT = process.env.PORT || 10000;
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
