@@ -12,9 +12,9 @@
   <header>
     <div class="logo">QikPic</div>
     <nav>
-      <a href="#">How it works</a>
-      <a href="#">Features</a>
-      <a href="#">Contact</a>
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#contact">Contact</a>
     </nav>
   </header>
 
@@ -27,7 +27,8 @@
 
       <div class="qr-container">
         <button id="generateQr">Generate QR</button>
-        <div id="qrCode"></div>
+        <div id="qrCode" class="qr-box"></div>
+        <small>Open this page on your phone and scan the code.</small>
       </div>
     </div>
 
@@ -39,13 +40,15 @@
         <div id="galleryGrid" class="gallery-grid"></div>
       </div>
 
-      <div class="info-box">
+      <div class="info-box" id="how">
         <h2>How It Works</h2>
         <p>1️⃣ Open QikPic on desktop → scan QR</p>
         <p>2️⃣ Select photos/files on your phone</p>
         <p>3️⃣ Files appear instantly</p>
         <p>4️⃣ Download or use them</p>
+      </div>
 
+      <div class="info-box" id="features">
         <h2>Features</h2>
         <p>⚡ Fast & Instant</p>
         <p>📱 No cables required</p>
@@ -56,7 +59,7 @@
   </div>
 
   <!-- Footer -->
-  <footer>
+  <footer id="contact">
     <p>© 2025 QikPic. All rights reserved.</p>
   </footer>
 
