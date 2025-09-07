@@ -60,6 +60,18 @@
     <p>© 2025 QikPic. All rights reserved.</p>
   </footer>
 
+  <!-- Gallery Modal -->
+  <div id="galleryModal" class="modal">
+    <span id="closeModal" class="close-btn">×</span>
+    <div class="modal-content">
+      <button id="prevBtn" class="nav-btn">⬅ Prev</button>
+      <img id="modalImage" src="" alt="Preview" />
+      <div id="modalFile"></div>
+      <button id="nextBtn" class="nav-btn">Next ➡</button>
+    </div>
+    <button id="deleteBtn" class="delete-btn">🗑 Delete</button>
+  </div>
+
   <script src="/socket.io/socket.io.js"></script>
   <script src="desktop.js"></script>
 </body>
