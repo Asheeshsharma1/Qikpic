@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QikPic - Transfer Photos Instantly</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QikPic</title>
+  <link rel="stylesheet" href="style.css"/>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
 <body>
-  <!-- Navbar -->
   <header class="navbar">
     <div class="logo">QikPic</div>
     <nav>
@@ -19,23 +18,20 @@
     </nav>
   </header>
 
-  <!-- Hero -->
   <section class="hero">
-    <h1>Transfer Your Photos From Phone to PC in a Snap</h1>
-    <p>Scan the QR code below with your phone and get your photos instantly on your desktop.</p>
-    <button id="generateQR" class="btn">Generate QR</button>
-    <div id="qrcode"></div>
-    <p id="qrNote"></p>
+    <h1>Transfer Your Photos & Files From Phone to PC in a Snap</h1>
+    <p>Scan the QR code below with your phone and get your files instantly on your desktop.</p>
+    <button id="generateQR">Generate QR</button>
+    <div id="qr"></div>
+    <small>Open this page on your phone and scan the code.</small>
   </section>
 
-  <!-- Gallery -->
-  <section class="gallery-section">
+  <section id="gallery" class="gallery-section">
     <h2>Live Gallery</h2>
-    <button id="downloadAll" class="btn">⬇ Download All</button>
+    <button id="downloadAll">⬇ Download All</button>
     <div id="galleryGrid" class="gallery-grid"></div>
   </section>
 
-  <!-- How it works -->
   <section id="how" class="info-section">
     <h2>How It Works</h2>
     <ol>
@@ -46,7 +42,6 @@
     </ol>
   </section>
 
-  <!-- Features -->
   <section id="features" class="info-section">
     <h2>Features</h2>
     <ul>
@@ -57,24 +52,17 @@
     </ul>
   </section>
 
-  <!-- Footer -->
-  <footer id="contact" class="footer">
+  <footer class="footer">
     <p>© 2025 QikPic. All rights reserved.</p>
   </footer>
 
-  <!-- Modal -->
-  <div id="photoModal" class="modal" onclick="backgroundClose(event)">
-    <div class="modal-content">
-      <div class="modal-header">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <button id="deleteBtn" class="delete-btn">🗑 Delete</button>
-      </div>
-      <div class="modal-body">
-        <button class="nav-btn" id="prevBtn">⟨</button>
-        <img id="modalImg" src="" alt="Preview">
-        <button class="nav-btn" id="nextBtn">⟩</button>
-      </div>
-    </div>
+  <!-- Fullscreen Modal -->
+  <div id="modal" class="modal">
+    <span id="closeModal">&times;</span>
+    <img id="modalImg"/>
+    <button id="deleteBtn">🗑 Delete</button>
+    <button id="prevBtn">⬅ Prev</button>
+    <button id="nextBtn">Next ➡</button>
   </div>
 
   <script src="desktop.js"></script>
