@@ -179,3 +179,18 @@ body {
 .btn:hover {
   background: #1e40af;
 }
+
+/* Center headings and content in sections */
+.gallery-section h2,
+.info-section h2,
+.info-section ol,
+.info-section ul {
+  text-align: center;
+}
+
+.info-section ol,
+.info-section ul {
+  display: inline-block;
+  text-align: left;  /* List ke items proper left aligned dikhne ke liye */
+  margin: 0 auto;
+}
