@@ -1,6 +1,6 @@
 const express = require("express");
 const http = require("http");
-const socketIo = require("socket.io");
+const socketIO = require("socket.io");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -8,82 +8,70 @@ const archiver = require("archiver");
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIO(server);
 
-const PORT = process.env.PORT || 3000;
-
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// ✅ Serve upload page
+// ✅ Multer Storage – Allow all file types
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(__dirname, "uploads", req.params.sessionId);
+    fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  }
+});
+
+const upload = multer({ storage });
+
+// ✅ Upload route
+app.post("/upload/:sessionId", upload.single("file"), (req, res) => {
+  const filePath = `/uploads/${req.params.sessionId}/${req.file.filename}`;
+  io.to(req.params.sessionId).emit("newPhoto", {
+    url: filePath,
+    filename: req.file.filename
+  });
+  res.json({ success: true, file: req.file.filename });
+});
+
+// ✅ Delete route
+app.delete("/delete/:sessionId/:filename", (req, res) => {
+  const filePath = path.join(__dirname, "uploads", req.params.sessionId, req.params.filename);
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+    io.to(req.params.sessionId).emit("deletePhoto", { filename: req.params.filename });
+    return res.json({ success: true });
+  }
+  res.status(404).json({ error: "File not found" });
+});
+
+// ✅ Download All (Zip)
+app.get("/download/:sessionId", (req, res) => {
+  const dir = path.join(__dirname, "uploads", req.params.sessionId);
+  if (!fs.existsSync(dir)) return res.status(404).send("No files found");
+
+  res.setHeader("Content-Disposition", `attachment; filename=${req.params.sessionId}.zip`);
+  const archive = archiver("zip", { zlib: { level: 9 } });
+  archive.pipe(res);
+  archive.directory(dir, false);
+  archive.finalize();
+});
+
+// ✅ Upload Page
 app.get("/upload/:sessionId", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "upload.html"));
 });
 
-// ✅ Multer storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const sessionPath = path.join(__dirname, "uploads", req.params.sessionId);
-    fs.mkdirSync(sessionPath, { recursive: true });
-    cb(null, sessionPath);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-const upload = multer({ storage });
-
-// ✅ Upload photos
-app.post("/upload/:sessionId", upload.array("photos", 20), (req, res) => {
-  const sessionId = req.params.sessionId;
-  req.files.forEach((file) => {
-    io.to(sessionId).emit("newPhoto", {
-      url: `/uploads/${sessionId}/${file.filename}`,
-      filename: file.filename,
-    });
-  });
-  res.sendStatus(200);
-});
-
-// ✅ Download all as ZIP
-app.get("/download/:sessionId", (req, res) => {
-  const sessionId = req.params.sessionId;
-  const folderPath = path.join(__dirname, "uploads", sessionId);
-
-  if (!fs.existsSync(folderPath)) {
-    return res.status(404).send("No photos found for this session.");
-  }
-
-  res.setHeader("Content-Disposition", `attachment; filename=${sessionId}.zip`);
-  res.setHeader("Content-Type", "application/zip");
-
-  const archive = archiver("zip", { zlib: { level: 9 } });
-  archive.pipe(res);
-  archive.directory(folderPath, false);
-  archive.finalize();
-});
-
-// ✅ Delete photo
-app.delete("/delete/:sessionId/:filename", (req, res) => {
-  const { sessionId, filename } = req.params;
-  const filePath = path.join(__dirname, "uploads", sessionId, filename);
-
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).send("File not found");
-  }
-
-  fs.unlinkSync(filePath);
-  io.to(sessionId).emit("deletePhoto", { filename });
-  res.sendStatus(200);
-});
-
-// ✅ WebSocket
+// ✅ Socket.IO
 io.on("connection", (socket) => {
   socket.on("joinSession", (sessionId) => {
     socket.join(sessionId);
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+// ✅ Start server
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
