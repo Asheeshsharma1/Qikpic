@@ -1,125 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Upload Photos - QikPic</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/style.css">
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background: #f9fafb;
-      font-family: "Poppins", sans-serif;
-    }
-
-    .upload-container {
-      width: 90%;
-      max-width: 400px;
-      background: #fff;
-      padding: 25px;
-      border-radius: 16px;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-
-    .upload-container h2 {
-      margin-bottom: 8px;
-      font-size: 22px;
-      color: #111827;
-    }
-
-    .upload-container p {
-      font-size: 14px;
-      color: #6b7280;
-      margin-bottom: 20px;
-    }
-
-    #fileInput {
-      margin: 15px 0;
-      padding: 12px;
-      width: 100%;
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
-      font-size: 14px;
-    }
-
-    .btn {
-      background: #2563eb;
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 16px;
-      width: 100%;
-      transition: background 0.2s ease-in-out;
-    }
-
-    .btn:hover {
-      background: #1e40af;
-    }
-
-    #status {
-      margin-top: 15px;
-      font-size: 14px;
-      color: #374151;
-    }
-  </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upload - QikPic</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
-<body>
-  <div class="upload-container">
-    <h2>📤 Upload Photos</h2>
-    <p>Select photos to instantly send them to your desktop.</p>
-
-    <form id="uploadForm" enctype="multipart/form-data" method="post">
-      <input type="file" name="photos" id="fileInput" multiple accept="image/*">
-      <button type="submit" class="btn">Upload</button>
-    </form>
-
-    <div id="status"></div>
-  </div>
+<body class="upload-page">
+  <h1>Upload to QikPic</h1>
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" name="file" multiple required />
+    <button type="submit">Upload</button>
+  </form>
 
   <script>
-    const sessionId = window.location.pathname.split("/").pop();
-    const form = document.getElementById("uploadForm");
-    const statusDiv = document.getElementById("status");
-    form.action = `/upload/${sessionId}`;
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get("session");
 
+    const form = document.getElementById("uploadForm");
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const files = document.getElementById("fileInput").files;
-      if (!files.length) {
-        statusDiv.textContent = "⚠️ Please select at least one photo.";
-        return;
-      }
+      const files = form.querySelector("input[name=file]").files;
 
-      const formData = new FormData();
       for (let file of files) {
-        formData.append("photos", file);
-      }
+        const formData = new FormData();
+        formData.append("file", file);
 
-      statusDiv.textContent = "⏳ Uploading...";
-
-      try {
-        const res = await fetch(`/upload/${sessionId}`, {
+        await fetch(`/upload/${sessionId}`, {
           method: "POST",
-          body: formData
+          body: formData,
         });
-
-        if (res.ok) {
-          statusDiv.textContent = "✅ Uploaded successfully!";
-          document.getElementById("fileInput").value = "";
-        } else {
-          statusDiv.textContent = "❌ Upload failed!";
-        }
-      } catch (err) {
-        console.error(err);
-        statusDiv.textContent = "⚠️ Error while uploading!";
       }
+      alert("Uploaded successfully!");
+      form.reset();
     });
   </script>
 </body>
