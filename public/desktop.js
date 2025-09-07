@@ -1,89 +1,104 @@
 const socket = io();
-let sessionId = null;
-let files = [];
+let currentSession = null;
+let galleryItems = [];
 let currentIndex = 0;
 
-document.getElementById("generateQR").addEventListener("click", () => {
-  sessionId = Math.random().toString(36).substring(2, 8);
-  const url = `${window.location.origin}/upload.html?session=${sessionId}`;
+// ✅ QR Code generate
+document.getElementById("generateQr").addEventListener("click", () => {
+  currentSession = Math.random().toString(36).substr(2, 9);
+  const url = `${window.location.origin}/upload.html?session=${currentSession}`;
 
-  // ✅ QR generate as image
-  QRCode.toDataURL(url, { width: 200 }, (err, dataUrl) => {
-    if (err) return console.error(err);
-    document.getElementById("qrImg").src = dataUrl;
+  // QR render
+  const qrBox = document.getElementById("qrCode");
+  qrBox.innerHTML = "";
+  QRCode.toCanvas(url, { width: 180 }, (err, canvas) => {
+    if (err) console.error(err);
+    qrBox.appendChild(canvas);
   });
 
-  socket.emit("joinSession", sessionId);
+  socket.emit("joinSession", currentSession);
 });
 
-// ✅ Live updates
-socket.on("newFile", (file) => {
-  files.push(file);
-  renderGallery();
-});
+// ✅ New file receive
+socket.on("newFile", (fileData) => {
+  if (!currentSession || fileData.session !== currentSession) return;
 
-socket.on("fileDeleted", (filename) => {
-  files = files.filter((f) => !f.url.endsWith(filename));
-  renderGallery();
-});
-
-// ✅ Render gallery
-function renderGallery() {
   const gallery = document.getElementById("galleryGrid");
-  gallery.innerHTML = "";
+  let element;
 
-  files.forEach((f, idx) => {
-    const ext = f.filename.split(".").pop().toLowerCase();
-    let elem;
+  if (fileData.type.startsWith("image/")) {
+    element = document.createElement("img");
+    element.src = `/uploads/${fileData.session}/${fileData.filename}`;
+    element.alt = fileData.filename;
+    element.classList.add("gallery-item");
+  } else {
+    element = document.createElement("a");
+    element.href = `/uploads/${fileData.session}/${fileData.filename}`;
+    element.textContent = fileData.filename;
+    element.target = "_blank";
+    element.classList.add("file-link");
+  }
 
-    if (["jpg","jpeg","png","gif","webp"].includes(ext)) {
-      elem = document.createElement("img");
-      elem.src = f.url + "?t=" + Date.now();
-      elem.classList.add("gallery-img");
-      elem.addEventListener("click", () => openModal(idx));
-    } else {
-      elem = document.createElement("div");
-      elem.classList.add("file-card");
-      elem.innerHTML = `📄 <a href="${f.url}" target="_blank">${f.filename}</a>`;
-    }
-    gallery.appendChild(elem);
-  });
-}
+  gallery.appendChild(element);
+  galleryItems.push(element);
+
+  // Click to open modal
+  element.addEventListener("click", () => openModal(galleryItems.indexOf(element)));
+});
 
 // ✅ Download All
 document.getElementById("downloadAll").addEventListener("click", () => {
-  if (!sessionId) return alert("Generate QR first!");
-  window.location.href = `/download/${sessionId}`;
+  if (!currentSession) {
+    alert("Please generate QR and upload files first.");
+    return;
+  }
+  window.location.href = `/download-all/${currentSession}`;
 });
 
-// ✅ Modal logic
-const modal = document.getElementById("modal");
-const modalImg = document.getElementById("modalImg");
-const closeModal = document.getElementById("closeModal");
-const deleteBtn = document.getElementById("deleteBtn");
-const prevBtn = document.getElementById("prevBtn");
-const nextBtn = document.getElementById("nextBtn");
+// ====================
+// Modal Logic
+// ====================
+const modal = document.getElementById("galleryModal");
+const modalImg = document.getElementById("modalImage");
+const modalFile = document.getElementById("modalFile");
 
-function openModal(idx) {
-  currentIndex = idx;
+function openModal(index) {
+  currentIndex = index;
+  showModalItem();
   modal.style.display = "flex";
-  modalImg.src = files[idx].url;
 }
 
-closeModal.addEventListener("click", () => (modal.style.display = "none"));
-
-deleteBtn.addEventListener("click", async () => {
-  const file = files[currentIndex];
-  const parts = file.url.split("/");
-  const filename = parts[parts.length - 1];
-  await fetch(`/delete/${sessionId}/${filename}`, { method: "DELETE" });
+function closeModal() {
   modal.style.display = "none";
-});
+}
 
-prevBtn.addEventListener("click", () => {
-  if (currentIndex > 0) openModal(currentIndex - 1);
-});
+function showModalItem() {
+  const item = galleryItems[currentIndex];
+  if (item.tagName === "IMG") {
+    modalImg.src = item.src;
+    modalImg.style.display = "block";
+    modalFile.style.display = "none";
+  } else {
+    modalImg.style.display = "none";
+    modalFile.style.display = "block";
+    modalFile.innerHTML = `<a href="${item.href}" target="_blank">${item.textContent}</a>`;
+  }
+}
 
-nextBtn.addEventListener("click", () => {
-  if (currentIndex < files.length - 1) openModal(currentIndex + 1);
+document.getElementById("closeModal").addEventListener("click", closeModal);
+document.getElementById("prevBtn").addEventListener("click", () => {
+  if (galleryItems.length === 0) return;
+  currentIndex = (currentIndex - 1 + galleryItems.length) % galleryItems.length;
+  showModalItem();
+});
+document.getElementById("nextBtn").addEventListener("click", () => {
+  if (galleryItems.length === 0) return;
+  currentIndex = (currentIndex + 1) % galleryItems.length;
+  showModalItem();
+});
+document.getElementById("deleteBtn").addEventListener("click", () => {
+  const item = galleryItems[currentIndex];
+  item.remove();
+  galleryItems.splice(currentIndex, 1);
+  closeModal();
 });
