@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>QikPic - Transfer Photos in a Snap</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/style.css">
+  <title>QikPic - Transfer Photos Instantly</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
 <body>
@@ -12,7 +13,7 @@
   <header class="navbar">
     <div class="logo">QikPic</div>
     <nav>
-      <a href="#howitworks">How it works</a>
+      <a href="#how">How it works</a>
       <a href="#features">Features</a>
       <a href="#contact">Contact</a>
     </nav>
@@ -23,28 +24,25 @@
     <h1>Transfer Your Photos From Phone to PC in a Snap</h1>
     <p>Scan the QR code below with your phone and get your photos instantly on your desktop.</p>
     <button id="generateQR" class="btn">Generate QR</button>
-    <div id="qrcode" class="qrcode"></div>
-    <p id="qrNote" class="note">Click "Generate QR" to start.</p>
+    <div id="qrcode"></div>
+    <p id="qrNote"></p>
   </section>
 
-  <!-- Live Gallery -->
+  <!-- Gallery -->
   <section class="gallery-section">
-    <div class="gallery-header">
-      <h2>📸 Live Gallery</h2>
-      <button id="downloadAll" class="btn small">Download All (ZIP)</button>
-    </div>
+    <h2>Live Gallery</h2>
+    <button id="downloadAll" class="btn">⬇ Download All</button>
     <div id="galleryGrid" class="gallery-grid"></div>
   </section>
 
   <!-- How it works -->
-  <section id="howitworks" class="info-section">
+  <section id="how" class="info-section">
     <h2>How It Works</h2>
     <ol>
-      <li>💻 Open QikPic on desktop → click "Generate QR"</li>
-      <li>📱 Scan the QR with your phone</li>
-      <li>🖼 Select photos on your phone</li>
-      <li>⚡ Photos appear on desktop instantly</li>
-      <li>⬇️ Download or use them</li>
+      <li>Open QikPic on desktop → scan QR</li>
+      <li>Select photos or files on your phone</li>
+      <li>Files appear on desktop instantly</li>
+      <li>Download or use them</li>
     </ol>
   </section>
 
@@ -54,33 +52,31 @@
     <ul>
       <li>⚡ Fast & Instant</li>
       <li>📱 No cables required</li>
-      <li>🔒 Secure & Temporary</li>
+      <li>🔒 Secure & Temporary Storage</li>
       <li>🖼 Multiple formats supported</li>
     </ul>
   </section>
 
   <!-- Footer -->
-  <footer id="contact">
+  <footer id="contact" class="footer">
     <p>© 2025 QikPic. All rights reserved.</p>
-    <p>
-      <a href="#">About</a> | 
-      <a href="#">Privacy Policy</a> | 
-      <a href="#">Terms</a> | 
-      <a href="#">Contact</a>
-    </p>
   </footer>
 
-  <!-- Photo Modal -->
-  <div id="photoModal" class="modal">
+  <!-- Modal -->
+  <div id="photoModal" class="modal" onclick="backgroundClose(event)">
     <div class="modal-content">
-      <span class="close" onclick="closeModal()">&times;</span>
-      <img id="modalImg" src="" alt="Preview">
-      <button id="deleteBtn" class="btn danger">Delete</button>
+      <div class="modal-header">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <button id="deleteBtn" class="delete-btn">🗑 Delete</button>
+      </div>
+      <div class="modal-body">
+        <button class="nav-btn" id="prevBtn">⟨</button>
+        <img id="modalImg" src="" alt="Preview">
+        <button class="nav-btn" id="nextBtn">⟩</button>
+      </div>
     </div>
   </div>
 
-  <!-- Scripts -->
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="/desktop.js"></script>
+  <script src="desktop.js"></script>
 </body>
 </html>
