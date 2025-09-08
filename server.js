@@ -1,70 +1,101 @@
-const express = require("express");
-const http = require("http");
-const path = require("path");
-const fs = require("fs");
-const multer = require("multer");
-const { Server } = require("socket.io");
-const archiver = require("archiver");
+import express from "express";
+import multer from "multer";
+import fs from "fs";
+import path from "path";
+import { Server } from "socket.io";
+import http from "http";
+import archiver from "archiver";
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-app.use(express.static(path.join(__dirname, "public")));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// -------------------- Upload Config --------------------
+const upload = multer({ dest: "uploads_tmp/" });
 
-// Ensure uploads dir exists
-if (!fs.existsSync("uploads")) fs.mkdirSync("uploads");
+app.use(express.static("public"));
+app.use("/uploads", express.static("uploads"));
 
-// Multer setup
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const session = req.body.session;
-    const folder = path.join("uploads", session);
-    if (!fs.existsSync(folder)) fs.mkdirSync(folder, { recursive: true });
-    cb(null, folder);
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-const upload = multer({ storage: storage });
-
-// Upload route
+// -------------------- Upload Endpoint --------------------
 app.post("/upload", upload.array("files"), (req, res) => {
-  const session = req.body.session;
-  req.files.forEach((file) => {
+  const session = req.query.session;
+  if (!session) return res.status(400).send("Missing session");
+
+  const sessionDir = path.join("uploads", session);
+  fs.mkdirSync(sessionDir, { recursive: true });
+
+  req.files.forEach((f) => {
+    const newPath = path.join(sessionDir, f.originalname);
+
+    // Auto-rename conflicts
+    let finalPath = newPath;
+    let counter = 1;
+    while (fs.existsSync(finalPath)) {
+      const ext = path.extname(f.originalname);
+      const base = path.basename(f.originalname, ext);
+      finalPath = path.join(sessionDir, `${base}(${counter})${ext}`);
+      counter++;
+    }
+
+    fs.renameSync(f.path, finalPath);
+
+    // Notify desktop gallery
     io.to(session).emit("newFile", {
       session,
-      filename: file.filename,
-      type: file.mimetype,
+      filename: path.basename(finalPath),
+      type: f.mimetype,
     });
   });
+
   res.send("ok");
 });
 
-// Download All (ZIP)
-app.get("/download-all/:session", (req, res) => {
-  const session = req.params.session;
-  const folder = path.join("uploads", session);
+// -------------------- Delete File --------------------
+app.delete("/delete", (req, res) => {
+  const { session, filename } = req.query;
+  if (!session || !filename) return res.status(400).send("Missing data");
 
-  if (!fs.existsSync(folder)) return res.status(404).send("No files found");
+  const filePath = path.join("uploads", session, filename);
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+    io.to(session).emit("deleteFile", { filename });
+    res.send("deleted");
+  } else {
+    res.status(404).send("Not found");
+  }
+});
 
-  res.setHeader("Content-Disposition", `attachment; filename="${session}.zip"`);
+// -------------------- Download All (ZIP) --------------------
+app.get("/download-all", (req, res) => {
+  const { session } = req.query;
+  if (!session) return res.status(400).send("Missing session");
 
-  const archive = archiver("zip");
+  const sessionDir = path.join("uploads", session);
+  if (!fs.existsSync(sessionDir)) return res.status(404).send("No files");
+
+  res.attachment(`qikpic-${session}.zip`);
+  const archive = archiver("zip", { zlib: { level: 9 } });
   archive.pipe(res);
-  archive.directory(folder, false);
+  archive.directory(sessionDir, false);
   archive.finalize();
 });
 
-// WebSocket
+// -------------------- Socket.IO --------------------
 io.on("connection", (socket) => {
+  console.log("🔌 New client connected");
+
   socket.on("joinSession", (session) => {
     socket.join(session);
+    console.log(`📌 Client joined session: ${session}`);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("❌ Client disconnected");
   });
 });
 
-// Start
-const PORT = process.env.PORT || 10000;
-server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+// -------------------- Start Server --------------------
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
