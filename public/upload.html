@@ -1,78 +1,61 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Upload to QikPic</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload - QikPic</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    body{font-family:Poppins,sans-serif;margin:0;background:#f6f8fb;color:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px}
-    .card{background:#fff;padding:24px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,0.06);width:100%;max-width:420px;text-align:center}
-    h1{font-size:20px;margin:0 0 12px}
-    input[type=file]{margin:18px 0;font-size:16px}
-    button{background:#007bff;color:#fff;border:none;padding:12px 18px;border-radius:10px;font-weight:600;cursor:pointer;width:100%}
-    .progress{margin-top:18px;height:12px;background:#eee;border-radius:6px;overflow:hidden}
-    .bar{height:100%;width:0;background:#007bff;transition:width .2s}
-    #status{margin-top:12px;font-size:14px;color:#666}
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="card">
-    <h1>Upload to QikPic</h1>
-    <p>Select photos or files to send:</p>
-    <input id="fileInput" type="file" multiple />
-    <button id="uploadBtn">Upload</button>
+  <div class="page-wrapper">
+    <div class="upload-card">
+      <h1>📤 Upload to QikPic</h1>
+      <input id="fileInput" type="file" multiple>
+      <button id="uploadBtn">Upload</button>
 
-    <div class="progress"><div id="progressBar" class="bar"></div></div>
-    <div id="status"></div>
+      <div class="progress"><div id="progressBar" class="bar"></div></div>
+      <p id="status"></p>
+    </div>
+    <footer class="footer">© 2025 QikPic. All rights reserved.</footer>
   </div>
 
-<script>
-const params = new URLSearchParams(window.location.search);
-const session = params.get("session");
-if(!session){
-  document.getElementById('status').textContent = "❌ Session missing. Please scan QR again.";
-}
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const session = params.get("session");
+    const fileInput = document.getElementById("fileInput");
+    const uploadBtn = document.getElementById("uploadBtn");
+    const progressBar = document.getElementById("progressBar");
+    const statusEl = document.getElementById("status");
 
-const fileInput = document.getElementById('fileInput');
-const uploadBtn = document.getElementById('uploadBtn');
-const progressBar = document.getElementById('progressBar');
-const statusEl = document.getElementById('status');
+    if(!session){ statusEl.textContent = "❌ Session missing. Scan QR again."; }
 
-uploadBtn.addEventListener('click', async ()=>{
-  if(!fileInput.files.length){ alert("Select files first."); return; }
-  const formData = new FormData();
-  for(const file of fileInput.files){
-    formData.append("files", file); // field name = "files"
-  }
+    uploadBtn.addEventListener("click", ()=>{
+      if(!fileInput.files.length){ alert("Select files first."); return; }
 
-  try {
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", `/upload?session=${encodeURIComponent(session)}`);
-    xhr.upload.onprogress = (e)=>{
-      if(e.lengthComputable){
-        const pct = (e.loaded/e.total)*100;
-        progressBar.style.width = pct+"%";
-      }
-    };
-    xhr.onload = ()=>{
-      if(xhr.status === 200){
-        statusEl.textContent = "✅ Uploaded successfully!";
-        progressBar.style.width = "100%";
-        fileInput.value = "";
-      } else {
-        statusEl.textContent = "❌ Upload failed on server.";
-      }
-    };
-    xhr.onerror = ()=>{ statusEl.textContent = "❌ Upload failed (network)."; };
-    xhr.send(formData);
-    statusEl.textContent = "Uploading...";
-    progressBar.style.width = "0%";
-  } catch(err){
-    console.error(err);
-    statusEl.textContent = "❌ Upload error.";
-  }
-});
-</script>
+      const formData = new FormData();
+      for(const file of fileInput.files){ formData.append("files", file); }
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", `/upload?session=${encodeURIComponent(session)}`);
+      xhr.upload.onprogress = (e)=>{
+        if(e.lengthComputable){
+          progressBar.style.width = ((e.loaded/e.total)*100)+"%";
+        }
+      };
+      xhr.onload = ()=>{
+        if(xhr.status === 200){
+          statusEl.textContent = "✅ Upload complete!";
+          progressBar.style.width = "100%";
+        } else {
+          statusEl.textContent = "❌ Upload failed.";
+        }
+      };
+      xhr.onerror = ()=> statusEl.textContent = "❌ Network error.";
+      xhr.send(formData);
+      statusEl.textContent = "Uploading...";
+      progressBar.style.width = "0%";
+    });
+  </script>
 </body>
 </html>
