@@ -4,12 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QikPic</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
 <body>
+  <!-- Navbar -->
   <header class="navbar">
     <div class="logo">QikPic</div>
     <nav>
@@ -20,6 +18,7 @@
   </header>
 
   <main class="main-content">
+    <!-- Hero -->
     <section class="hero">
       <h1>Transfer Your Photos & Files From Phone to PC in a Snap</h1>
       <p>Scan the QR code below with your phone and get your files instantly on your desktop.</p>
@@ -28,22 +27,25 @@
       <p class="note">Open this page on your phone and scan the code.</p>
     </section>
 
+    <!-- Gallery -->
     <section class="gallery-section">
       <h2>Live Gallery</h2>
       <button id="downloadAll">⬇ Download All</button>
       <div id="gallery" class="gallery"></div>
     </section>
 
+    <!-- How it Works -->
     <section id="how">
       <h2>How It Works</h2>
       <ol>
-        <li>Open QikPic on desktop → scan QR</li>
-        <li>Select photos or files on your phone</li>
-        <li>Files appear on desktop instantly</li>
-        <li>Download or use them</li>
+        <li>1️⃣ Open QikPic on desktop → scan QR</li>
+        <li>2️⃣ Select photos or files on your phone</li>
+        <li>3️⃣ Files appear on desktop instantly</li>
+        <li>4️⃣ Download or use them</li>
       </ol>
     </section>
 
+    <!-- Features -->
     <section id="features">
       <h2>Features</h2>
       <ul>
@@ -59,6 +61,9 @@
     © 2025 QikPic. All rights reserved.
   </footer>
 
+  <!-- Scripts -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
   <script src="desktop.js"></script>
 </body>
 </html>
