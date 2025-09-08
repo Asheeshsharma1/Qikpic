@@ -1,45 +1,122 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QikPic - Transfer</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>QikPic — Transfer Files Instantly</title>
+
+  <!-- Google font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css" />
+  <!-- socket.io client provided by server -->
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- QR library -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
 <body>
-  <header>
-    <div class="logo">QikPic</div>
-    <nav>
-      <a href="#how">How it works</a>
-      <a href="#features">Features</a>
-      <a href="#contact">Contact</a>
-    </nav>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="logo">QikPic</div>
+      <nav class="nav">
+        <a href="#how" class="nav-link">How it works</a>
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#contact" class="nav-link">Contact</a>
+      </nav>
+      <div class="header-actions">
+        <button id="generateQr" class="btn primary small">Generate QR</button>
+        <button id="copyLink" class="btn ghost small" title="Copy session link" style="display:none">Copy Link</button>
+      </div>
+    </div>
   </header>
 
-  <main>
-    <section class="hero">
-      <h1>Transfer Files From Phone to PC in Seconds</h1>
-      <p>Scan the QR below and upload files instantly.</p>
+  <main class="container main-grid">
+    <!-- Left: Hero + QR -->
+    <section class="hero-card">
+      <h1 class="hero-title">Transfer Photos & Files From Phone to PC — In a Snap</h1>
+      <p class="hero-sub">Scan the QR below with your phone. Files you upload appear instantly on this desktop.</p>
 
-      <div class="qr-container">
-        <button id="generateQr">Generate QR</button>
-        <div id="qrCode"></div>
+      <div class="qr-area" aria-live="polite">
+        <div id="qrWrapper" class="qr-wrapper">
+          <img id="qrImg" alt="QR code" style="display:none; max-width:220px;"/>
+          <canvas id="qrCanvas" style="display:none"></canvas>
+        </div>
+        <p id="qrNote" class="muted">Click “Generate QR” to start a session.</p>
+        <div class="qr-actions">
+          <button id="regenBtn" class="btn secondary" style="display:none">Regenerate</button>
+          <a id="openUpload" class="btn outline" style="display:none" target="_blank">Open upload page</a>
+        </div>
+      </div>
+
+      <div class="how-quick">
+        <strong>Quick:</strong> Generate → Scan → Upload → Files appear here.
       </div>
     </section>
 
-    <section class="gallery">
-      <h2>Live Gallery</h2>
-      <button id="downloadAll">⬇ Download All</button>
-      <div id="galleryGrid" class="gallery-grid"></div>
-    </section>
+    <!-- Right: Live gallery & Info -->
+    <aside class="right-column">
+      <div class="card gallery-card">
+        <div class="card-header">
+          <h2>Live Gallery</h2>
+          <div class="card-actions">
+            <button id="downloadAll" class="btn small">⬇ Download All</button>
+            <span id="sessionLabel" class="muted small" style="margin-left:10px"></span>
+          </div>
+        </div>
+
+        <div id="galleryGrid" class="gallery-grid" aria-live="polite">
+          <!-- thumbnails appended here -->
+        </div>
+        <div id="emptyHint" class="empty-hint">No files yet. Generate QR and upload from your phone.</div>
+      </div>
+
+      <div class="card info-card" id="how">
+        <h3>How it works</h3>
+        <ol class="steps">
+          <li>Open QikPic on desktop → click <strong>Generate QR</strong></li>
+          <li>Scan QR on your phone → upload page opens</li>
+          <li>Select files → they appear here instantly</li>
+          <li>Download or delete as you like</li>
+        </ol>
+      </div>
+
+      <div class="card info-card" id="features">
+        <h3>Features</h3>
+        <ul class="features">
+          <li>⚡ Fast & Instant</li>
+          <li>📱 No cables required</li>
+          <li>🔒 Temporary storage</li>
+          <li>🖼 Supports images & files</li>
+        </ul>
+      </div>
+    </aside>
   </main>
 
-  <footer id="contact">
-    <p>© 2025 QikPic. All rights reserved.</p>
+  <footer class="site-footer" id="contact">
+    <div class="container">© 2025 QikPic. All rights reserved.</div>
   </footer>
 
-  <script src="/socket.io/socket.io.js"></script>
+  <!-- Modal viewer -->
+  <div id="viewerModal" class="viewer-modal" aria-hidden="true">
+    <div class="viewer-shell">
+      <button id="viewerClose" class="viewer-close" aria-label="Close viewer">✕</button>
+      <div class="viewer-left">
+        <img id="viewerImg" alt="Preview" />
+        <div id="viewerFile" class="viewer-file"></div>
+      </div>
+      <div class="viewer-right">
+        <div class="viewer-meta">
+          <div id="viewerName" class="viewer-name"></div>
+          <div class="viewer-controls">
+            <button id="prevBtn" class="btn ghost">⬅ Prev</button>
+            <button id="nextBtn" class="btn ghost">Next ➡</button>
+            <button id="deleteBtn" class="btn danger">🗑 Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="desktop.js"></script>
 </body>
 </html>
