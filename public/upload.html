@@ -1,57 +1,78 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Upload - QikPic</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Upload to QikPic</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:Poppins,sans-serif;margin:0;background:#f6f8fb;color:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+    .card{background:#fff;padding:24px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,0.06);width:100%;max-width:420px;text-align:center}
+    h1{font-size:20px;margin:0 0 12px}
+    input[type=file]{margin:18px 0;font-size:16px}
+    button{background:#007bff;color:#fff;border:none;padding:12px 18px;border-radius:10px;font-weight:600;cursor:pointer;width:100%}
+    .progress{margin-top:18px;height:12px;background:#eee;border-radius:6px;overflow:hidden}
+    .bar{height:100%;width:0;background:#007bff;transition:width .2s}
+    #status{margin-top:12px;font-size:14px;color:#666}
+  </style>
 </head>
-<body class="upload-page">
-  <div class="upload-container">
-    <h1>Upload Files</h1>
-    <form id="uploadForm">
-      <input type="file" id="fileInput" name="files" multiple required />
-      <button type="submit">Upload</button>
-    </form>
+<body>
+  <div class="card">
+    <h1>Upload to QikPic</h1>
+    <p>Select photos or files to send:</p>
+    <input id="fileInput" type="file" multiple />
+    <button id="uploadBtn">Upload</button>
 
-    <div id="progressBox">
-      <div id="progressBar"></div>
-    </div>
-    <p id="status"></p>
+    <div class="progress"><div id="progressBar" class="bar"></div></div>
+    <div id="status"></div>
   </div>
 
-  <script>
-    const session = new URLSearchParams(window.location.search).get("session");
-    const form = document.getElementById("uploadForm");
-    const progressBar = document.getElementById("progressBar");
-    const status = document.getElementById("status");
+<script>
+const params = new URLSearchParams(window.location.search);
+const session = params.get("session");
+if(!session){
+  document.getElementById('status').textContent = "❌ Session missing. Please scan QR again.";
+}
 
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const files = document.getElementById("fileInput").files;
-      if (!files.length) return alert("Select files first");
+const fileInput = document.getElementById('fileInput');
+const uploadBtn = document.getElementById('uploadBtn');
+const progressBar = document.getElementById('progressBar');
+const statusEl = document.getElementById('status');
 
-      const data = new FormData();
-      for (let f of files) data.append("files", f);
-      data.append("session", session);
+uploadBtn.addEventListener('click', async ()=>{
+  if(!fileInput.files.length){ alert("Select files first."); return; }
+  const formData = new FormData();
+  for(const file of fileInput.files){
+    formData.append("files", file); // field name = "files"
+  }
 
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", "/upload", true);
-
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-          const percent = Math.round((e.loaded / e.total) * 100);
-          progressBar.style.width = percent + "%";
-          status.textContent = `Uploading... ${percent}%`;
-        }
-      };
-
-      xhr.onload = () => {
-        status.textContent = xhr.status === 200 ? "✅ Done!" : "❌ Failed!";
-      };
-
-      xhr.send(data);
-    });
-  </script>
+  try {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `/upload?session=${encodeURIComponent(session)}`);
+    xhr.upload.onprogress = (e)=>{
+      if(e.lengthComputable){
+        const pct = (e.loaded/e.total)*100;
+        progressBar.style.width = pct+"%";
+      }
+    };
+    xhr.onload = ()=>{
+      if(xhr.status === 200){
+        statusEl.textContent = "✅ Uploaded successfully!";
+        progressBar.style.width = "100%";
+        fileInput.value = "";
+      } else {
+        statusEl.textContent = "❌ Upload failed on server.";
+      }
+    };
+    xhr.onerror = ()=>{ statusEl.textContent = "❌ Upload failed (network)."; };
+    xhr.send(formData);
+    statusEl.textContent = "Uploading...";
+    progressBar.style.width = "0%";
+  } catch(err){
+    console.error(err);
+    statusEl.textContent = "❌ Upload error.";
+  }
+});
+</script>
 </body>
 </html>
