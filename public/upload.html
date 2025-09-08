@@ -3,59 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upload - QikPic</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <title>Upload to QikPic</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="page-wrapper">
     <div class="upload-card">
-      <h1>📤 Upload to QikPic</h1>
-      <input id="fileInput" type="file" multiple>
+      <h1>Upload to QikPic</h1>
+      <input id="fileInput" type="file" multiple webkitdirectory>
       <button id="uploadBtn">Upload</button>
 
       <div class="progress"><div id="progressBar" class="bar"></div></div>
-      <p id="status"></p>
+      <div id="status"></div>
     </div>
     <footer class="footer">© 2025 QikPic. All rights reserved.</footer>
   </div>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const session = params.get("session");
-    const fileInput = document.getElementById("fileInput");
-    const uploadBtn = document.getElementById("uploadBtn");
-    const progressBar = document.getElementById("progressBar");
-    const statusEl = document.getElementById("status");
-
-    if(!session){ statusEl.textContent = "❌ Session missing. Scan QR again."; }
-
-    uploadBtn.addEventListener("click", ()=>{
-      if(!fileInput.files.length){ alert("Select files first."); return; }
-
-      const formData = new FormData();
-      for(const file of fileInput.files){ formData.append("files", file); }
-
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", `/upload?session=${encodeURIComponent(session)}`);
-      xhr.upload.onprogress = (e)=>{
-        if(e.lengthComputable){
-          progressBar.style.width = ((e.loaded/e.total)*100)+"%";
-        }
-      };
-      xhr.onload = ()=>{
-        if(xhr.status === 200){
-          statusEl.textContent = "✅ Upload complete!";
-          progressBar.style.width = "100%";
-        } else {
-          statusEl.textContent = "❌ Upload failed.";
-        }
-      };
-      xhr.onerror = ()=> statusEl.textContent = "❌ Network error.";
-      xhr.send(formData);
-      statusEl.textContent = "Uploading...";
-      progressBar.style.width = "0%";
-    });
-  </script>
+  <script src="phone.js"></script>
 </body>
 </html>
