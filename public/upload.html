@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upload to QikPic</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upload to QikPic</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="page-wrapper">
     <div class="upload-card">
       <h1>Upload to QikPic</h1>
-      <input id="fileInput" type="file" multiple webkitdirectory>
-      <button id="uploadBtn">Upload</button>
+      <form id="uploadForm">
+        <input id="fileInput" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx">
+        <button type="submit" id="uploadBtn">Upload</button>
+      </form>
 
-      <div class="progress"><div id="progressBar" class="bar"></div></div>
+      <div class="progress">
+        <div id="progressBar" class="bar"></div>
+      </div>
+      <div id="progressText">0%</div>
       <div id="status"></div>
     </div>
-    <footer class="footer">© 2025 QikPic. All rights reserved.</footer>
-  </div>
-
-  <script src="phone.js"></script>
-</body>
-</html>
+    <footer class="footer
