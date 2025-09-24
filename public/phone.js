@@ -4,8 +4,13 @@ const progressBar = document.getElementById("progressBar");
 const progressText = document.getElementById("progressText");
 const status = document.getElementById("status");
 
-// Session ID from URL
-const sessionId = new URLSearchParams(window.location.search).get("s");
+// Get session ID from URL
+const sessionId = new URLSearchParams(window.location.search).get("session");
+
+if (!sessionId) {
+  alert("❌ Missing session ID!");
+  throw new Error("Missing session ID in URL");
+}
 
 form.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -20,7 +25,7 @@ form.addEventListener("submit", (e) => {
   }
 
   const xhr = new XMLHttpRequest();
-  xhr.open("POST", `/upload/${sessionId}`, true);
+  xhr.open("POST", `/upload?session=${sessionId}`, true);
 
   // Progress
   xhr.upload.onprogress = (e) => {
@@ -37,10 +42,16 @@ form.addEventListener("submit", (e) => {
       setTimeout(() => {
         progressBar.style.width = "0%";
         progressText.innerText = "0%";
+        status.innerText = "";
       }, 2000);
+      fileInput.value = ""; // reset input
     } else {
       status.innerText = "❌ Upload failed!";
     }
+  };
+
+  xhr.onerror = () => {
+    status.innerText = "❌ Upload failed!";
   };
 
   xhr.send(formData);
