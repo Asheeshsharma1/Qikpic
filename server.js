@@ -15,7 +15,7 @@ const upload = multer({ dest: "uploads_tmp/" });
 app.use(express.static("public"));
 app.use("/uploads", express.static("uploads"));
 
-// ================= Upload =================
+// Upload files
 app.post("/upload", upload.array("files"), (req, res) => {
   const session = req.query.session;
   if (!session) return res.status(400).send("Missing session");
@@ -27,7 +27,6 @@ app.post("/upload", upload.array("files"), (req, res) => {
     const originalName = f.originalname;
     let finalPath = path.join(sessionDir, originalName);
 
-    // Auto rename if conflict
     let counter = 1;
     while (fs.existsSync(finalPath)) {
       const ext = path.extname(originalName);
@@ -48,7 +47,7 @@ app.post("/upload", upload.array("files"), (req, res) => {
   res.send("ok");
 });
 
-// ================= Delete File =================
+// Delete file
 app.delete("/delete", (req, res) => {
   const { session, filename } = req.query;
   if (!session || !filename) return res.status(400).send("Missing data");
@@ -63,7 +62,7 @@ app.delete("/delete", (req, res) => {
   }
 });
 
-// ================= Download All =================
+// Download all files as ZIP
 app.get("/download-all", (req, res) => {
   const { session } = req.query;
   if (!session) return res.status(400).send("Missing session");
@@ -78,16 +77,13 @@ app.get("/download-all", (req, res) => {
   archive.finalize();
 });
 
-// ================= Socket =================
+// Socket.io
 io.on("connection", (socket) => {
   socket.on("joinSession", (session) => {
     socket.join(session);
-    console.log(`✅ Client joined: ${session}`);
+    console.log(`Client joined session: ${session}`);
   });
 });
 
-// ================= Start Server =================
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+server.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
