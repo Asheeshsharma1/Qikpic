@@ -1,70 +1,41 @@
-const uploadCard = document.getElementById("uploadCard");
-const formBtn = document.getElementById("uploadBtn");
+const uploadBtn = document.getElementById("uploadBtn");
 const fileInput = document.getElementById("fileInput");
+const folderInput = document.getElementById("folderInput");
 const progressBar = document.getElementById("progressBar");
-const progressText = document.getElementById("progressText");
 const status = document.getElementById("status");
 
-// Session ID from URL
+// Get session from URL (upload.html?session=xxxx)
 const sessionId = new URLSearchParams(window.location.search).get("session");
 
-if (!sessionId) alert("Session not found!");
+uploadBtn.addEventListener("click", () => {
+  const files = [...fileInput.files, ...folderInput.files];
+  if (files.length === 0) return alert("Please select files or folder!");
 
-// ----------------- Drag & Drop -----------------
-uploadCard.addEventListener("dragover", (e) => {
-  e.preventDefault();
-  uploadCard.classList.add("dragover");
-});
-uploadCard.addEventListener("dragleave", (e) => {
-  uploadCard.classList.remove("dragover");
-});
-uploadCard.addEventListener("drop", (e) => {
-  e.preventDefault();
-  uploadCard.classList.remove("dragover");
-  fileInput.files = e.dataTransfer.files;
-});
+  const formData = new FormData();
+  files.forEach(f => formData.append("files", f));
 
-// ----------------- Upload -----------------
-formBtn.addEventListener("click", () => {
-  if (!fileInput.files.length) {
-    alert("Select files first!");
-    return;
-  }
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", `/upload?session=${sessionId}`, true);
 
-  const files = Array.from(fileInput.files);
-  let uploadedCount = 0;
+  // Upload progress
+  xhr.upload.onprogress = (e) => {
+    if (e.lengthComputable) {
+      const percent = Math.round((e.loaded / e.total) * 100);
+      progressBar.style.width = percent + "%";
+    }
+  };
 
-  files.forEach((file) => {
-    const formData = new FormData();
-    formData.append("files", file);
+  xhr.onload = () => {
+    if (xhr.status === 200) {
+      status.innerText = "✅ Upload complete!";
+      setTimeout(() => {
+        progressBar.style.width = "0%";
+        status.innerText = "";
+      }, 2000);
+    } else {
+      status.innerText = "❌ Upload failed!";
+    }
+  };
 
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", `/upload?session=${sessionId}`, true);
-
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) {
-        const percent = Math.round((e.loaded / e.total) * 100);
-        progressBar.style.width = percent + "%";
-        progressText.innerText = `${percent}% (${file.name})`;
-      }
-    };
-
-    xhr.onload = () => {
-      if (xhr.status === 200) {
-        uploadedCount++;
-        if (uploadedCount === files.length) {
-          status.innerText = "✅ All files uploaded!";
-          setTimeout(() => {
-            progressBar.style.width = "0%";
-            progressText.innerText = "0%";
-            status.innerText = "";
-          }, 2000);
-        }
-      } else {
-        status.innerText = "❌ Upload failed!";
-      }
-    };
-
-    xhr.send(formData);
-  });
+  xhr.send(formData);
 });
