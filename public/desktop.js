@@ -3,39 +3,28 @@ let sessionId = null;
 let files = [];
 let currentIndex = 0;
 
-// ----------------- QR Code Generate -----------------
 document.getElementById("generateBtn")?.addEventListener("click", () => {
   sessionId = Math.random().toString(36).substring(2, 8);
   const url = `${window.location.origin}/upload.html?session=${sessionId}`;
 
   const qrCanvas = document.getElementById("qrCanvas");
-  const qr = new QRious({
-    element: qrCanvas,
-    value: url,
-    size: 200,
-  });
+  const qr = new QRious({ element: qrCanvas, value: url, size: 200 });
 
-  // Join socket session
   socket.emit("joinSession", sessionId);
-
   console.log("QR generated:", url);
 });
 
-// ----------------- Handle New File -----------------
 socket.on("newFile", (data) => {
   if (!sessionId || data.session !== sessionId) return;
-
   files.push(data);
   renderGallery();
 });
 
-// ----------------- Handle Delete File -----------------
 socket.on("deleteFile", (data) => {
   files = files.filter((f) => f.filename !== data.filename);
   renderGallery();
 });
 
-// ----------------- Render Gallery -----------------
 function renderGallery() {
   const gallery = document.getElementById("gallery");
   gallery.innerHTML = "";
@@ -66,7 +55,6 @@ function renderGallery() {
   });
 }
 
-// ----------------- Preview Modal -----------------
 function openPreview(index) {
   currentIndex = index;
   const file = files[index];
@@ -88,7 +76,6 @@ function openPreview(index) {
     content.height = "500px";
   }
 
-  // Controls
   const closeBtn = document.createElement("button");
   closeBtn.textContent = "×";
   closeBtn.className = "control-btn close";
@@ -109,40 +96,22 @@ function openPreview(index) {
   nextBtn.className = "control-btn next";
   nextBtn.onclick = () => navigatePreview(1);
 
-  modal.appendChild(closeBtn);
-  modal.appendChild(deleteBtn);
-  modal.appendChild(prevBtn);
-  modal.appendChild(nextBtn);
-  modal.appendChild(content);
+  modal.append(closeBtn, deleteBtn, prevBtn, nextBtn, content);
   overlay.appendChild(modal);
-
   document.body.appendChild(overlay);
 }
 
-function closePreview() {
-  document.getElementById("previewOverlay")?.remove();
-}
-
+function closePreview() { document.getElementById("previewOverlay")?.remove(); }
 function navigatePreview(direction) {
   currentIndex = (currentIndex + direction + files.length) % files.length;
   closePreview();
   openPreview(currentIndex);
 }
-
-// ----------------- Delete File -----------------
 function deleteFile(filename) {
-  fetch(`/delete?session=${sessionId}&filename=${filename}`, {
-    method: "DELETE",
-  }).then((res) => {
-    if (res.ok) {
-      files = files.filter((f) => f.filename !== filename);
-      renderGallery();
-      closePreview();
-    }
-  });
+  fetch(`/delete?session=${sessionId}&filename=${filename}`, { method: "DELETE" })
+    .then(res => { if(res.ok){ files = files.filter(f=>f.filename!==filename); renderGallery(); closePreview(); }});
 }
 
-// ----------------- Download All -----------------
 document.getElementById("downloadAll")?.addEventListener("click", () => {
   if (!sessionId) return alert("Generate QR first!");
   window.location.href = `/download-all?session=${sessionId}`;
