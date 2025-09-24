@@ -9,35 +9,41 @@ document.getElementById("generateBtn")?.addEventListener("click", () => {
   const url = `${window.location.origin}/upload.html?session=${sessionId}`;
 
   const qrCanvas = document.getElementById("qrCanvas");
-  new QRious({
+  const qr = new QRious({
     element: qrCanvas,
     value: url,
     size: 200,
   });
 
-  // Join socket session
   socket.emit("joinSession", sessionId);
-
   console.log("QR generated:", url);
 });
 
 // ----------------- Handle New File -----------------
 socket.on("newFile", (data) => {
   if (!sessionId || data.session !== sessionId) return;
-
   files.push(data);
   renderGallery();
-  // Auto scroll gallery
+
+  // Auto scroll gallery to bottom for new file
   const gallery = document.getElementById("gallery");
   gallery.scrollTop = gallery.scrollHeight;
-  showToast(`✅ ${data.filename} uploaded!`);
 });
 
 // ----------------- Handle Delete File -----------------
 socket.on("deleteFile", (data) => {
-  files = files.filter((f) => f.filename !== data.filename);
+  const deletedIndex = files.findIndex(f => f.filename === data.filename);
+  files = files.filter(f => f.filename !== data.filename);
   renderGallery();
-  showToast(`🗑 ${data.filename} deleted`);
+
+  // Auto-preview next file if current preview was deleted
+  if (deletedIndex !== -1 && files.length > 0) {
+    const nextIndex = deletedIndex < files.length ? deletedIndex : files.length - 1;
+    closePreview();
+    openPreview(nextIndex);
+  } else {
+    closePreview();
+  }
 });
 
 // ----------------- Render Gallery -----------------
@@ -59,6 +65,7 @@ function renderGallery() {
       const icon = document.createElement("div");
       icon.className = "file-icon";
       icon.textContent = "📄";
+      icon.addEventListener("click", () => openPreview(index));
       item.appendChild(icon);
     }
 
@@ -73,9 +80,9 @@ function renderGallery() {
 
 // ----------------- Preview Modal -----------------
 function openPreview(index) {
-  if (files.length === 0) return;
   currentIndex = index;
   const file = files[index];
+
   const overlay = document.createElement("div");
   overlay.className = "overlay";
   overlay.id = "previewOverlay";
@@ -121,51 +128,44 @@ function openPreview(index) {
   modal.appendChild(nextBtn);
   modal.appendChild(content);
   overlay.appendChild(modal);
-  document.body.appendChild(overlay);
 
-  // Keyboard navigation
-  document.onkeydown = (e) => {
-    if (!document.getElementById("previewOverlay")) return;
-    if (e.key === "ArrowLeft") navigatePreview(-1);
-    if (e.key === "ArrowRight") navigatePreview(1);
-    if (e.key === "Escape") closePreview();
-  };
+  document.body.appendChild(overlay);
 }
 
+// Close preview
 function closePreview() {
   document.getElementById("previewOverlay")?.remove();
 }
 
-// ----------------- Navigate Preview -----------------
+// Navigate preview
 function navigatePreview(direction) {
+  if (files.length === 0) return;
   currentIndex = (currentIndex + direction + files.length) % files.length;
   closePreview();
   openPreview(currentIndex);
 }
 
-// ----------------- Delete File -----------------
+// Delete file
 function deleteFile(filename) {
-  fetch(`/delete?session=${sessionId}&filename=${filename}`, { method: "DELETE" })
-    .then((res) => {
-      if (res.ok) {
-        files = files.filter((f) => f.filename !== filename);
-        renderGallery();
-        closePreview();
-      }
-    });
+  fetch(`/delete?session=${sessionId}&filename=${filename}`, {
+    method: "DELETE",
+  }).then(res => {
+    if (res.ok) {
+      // socket.on("deleteFile") handles gallery update & auto next preview
+    }
+  });
 }
 
-// ----------------- Download All -----------------
+// Download all
 document.getElementById("downloadAll")?.addEventListener("click", () => {
   if (!sessionId) return alert("Generate QR first!");
   window.location.href = `/download-all?session=${sessionId}`;
 });
 
-// ----------------- Toast -----------------
-function showToast(msg) {
-  const toast = document.createElement("div");
-  toast.className = "toast";
-  toast.innerText = msg;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
+// Keyboard navigation
+document.addEventListener("keydown", (e) => {
+  if (!document.getElementById("previewOverlay")) return;
+  if (e.key === "ArrowLeft") navigatePreview(-1);
+  if (e.key === "ArrowRight") navigatePreview(1);
+  if (e.key === "Escape") closePreview();
+});
