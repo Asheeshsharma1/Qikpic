@@ -7,6 +7,15 @@ const status = document.getElementById("status");
 // Get session from URL (upload.html?session=xxxx)
 const sessionId = new URLSearchParams(window.location.search).get("session");
 
+// Optional: simple toast notification
+function showToast(message, success = true) {
+  const toast = document.createElement("div");
+  toast.className = `toast ${success ? "success" : "error"}`;
+  toast.innerText = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+}
+
 uploadBtn.addEventListener("click", () => {
   const files = [...fileInput.files, ...folderInput.files];
   if (files.length === 0) return alert("Please select files or folder!");
@@ -28,13 +37,25 @@ uploadBtn.addEventListener("click", () => {
   xhr.onload = () => {
     if (xhr.status === 200) {
       status.innerText = "✅ Upload complete!";
+      showToast("Upload complete! ✅");
+
+      // Reset inputs
+      fileInput.value = "";
+      folderInput.value = "";
+
       setTimeout(() => {
         progressBar.style.width = "0%";
         status.innerText = "";
       }, 2000);
     } else {
       status.innerText = "❌ Upload failed!";
+      showToast("Upload failed! ❌", false);
     }
+  };
+
+  xhr.onerror = () => {
+    status.innerText = "❌ Upload failed!";
+    showToast("Upload failed! ❌", false);
   };
 
   xhr.send(formData);
